@@ -1,92 +1,117 @@
+import React, { useState } from "react";
 import "./imageToText.scss";
+import ImageSelectorPopup from "../components/ImageSelectorPopup";
 import model from "../lib/gemini";
-import { useState } from "react";
+import { ClipLoader } from "react-spinners";
 
 const ImageToText = () => {
   const [result, setResult] = useState("");
   const [imageSrc, setImageSrc] = useState(null);
-  const [prompt, setPrompt] = useState("")
+  const [prompt, setPrompt] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const handleInputChange = (e) => {
     setPrompt(e.target.value);
   };
 
-//   const handleFileChange = async (event) => {
-//     const file = event.target.files[0];
-//     if (!file) return;
+  const handleFileSelect = (file) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImageSrc(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
-//     const reader = new FileReader();
+  const handleUrlSelect = async (url) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const reader = new FileReader();
 
-//     reader.onload = async () => {
-//       const base64Data = reader.result.split(",")[1];
-//       setSelectedImage(reader.result);
+      reader.onloadend = () => {
+        setImageSrc(reader.result); // Obraz w formacie Base64
+      };
 
-//       const prompt = "Opisz co przedstawia zdjęcie, po polsku";
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error("Failed to fetch the image from URL", error);
+    }
+  };
 
-//       const imagePart = {
-//         inlineData: {
-//           data: base64Data,
-//           mimeType: file.type,
-//         },
-//       };
-
-//       const generateResult = await model.generateContent([prompt, imagePart]);
-//       const text = await generateResult.response.text();
-//       setResult(text);
-//     };
-//     reader.readAsDataURL(file);
-//   };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (imageSrc) {
-        const imagePart = {
-            inlineData: {
-                data: imageSrc.split(",")[1],
-                mimeType: "image/jpeg"
-            }
-        }
+      setLoading(true);
+
+      const imagePart = {
+        inlineData: {
+          data: imageSrc.split(",")[1], // Pobierz tylko dane Base64, bez prefiksu
+          mimeType: "image/jpeg",
+        },
+      };
+
+      try {
         const result = await model.generateContent([prompt, imagePart]);
         const responseText = await result.response.text();
-        setResult(responseText)
-        setPrompt("")
-    }
-  }
+        setResult(responseText);
+      } catch (error) {
+        console.error("Error generating content:", error);
+      }
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if(file) {
-        const reader = new FileReader();
-        reader.onloadend = ()=> {
-            setImageSrc(reader.result)
-        }
-        reader.readAsDataURL(file)
+      setPrompt("");
+      setLoading(false);
     }
-  }
+  };
+
+  const openPopup = () => {
+    setIsPopupOpen(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
 
   return (
     <div className="imagetotext">
-      <h1>Image to Text</h1>
       <form onSubmit={handleSubmit}>
-      <input 
-          type="text" 
-          value={prompt} 
-          onChange={handleInputChange} 
+        <input
+          className="promptInput"
+          type="text"
+          value={prompt}
+          onChange={handleInputChange}
           placeholder="Enter your prompt here"
         />
-        <input type="file" accept="image/*" onChange={handleImageChange}  />
-        <button type="submit">Generate</button>
+        <div className="fileInputWrapper">
+          <button type="button" onClick={openPopup}>
+            Choose Image
+          </button>
+        </div>
+        <button type="submit" className="button1">
+          Generate
+        </button>
       </form>
-      {imageSrc && (
+      <div className="field">
         <div className="image-preview">
-          <img src={imageSrc} alt="Selected" />
+          {imageSrc && <img src={imageSrc} alt="Selected" />}
         </div>
-      )}
-      {result && (
         <div className="result">
-          <h2>Description:</h2>
-          <p>{result}</p>
+          {loading ? (
+            <div className={`loader ${loading ? "active" : ""}`}>
+              <ClipLoader color="#36d7b7" />
+            </div>
+          ) : (
+            result && <p>{result}</p>
+          )}
         </div>
+      </div>
+      {isPopupOpen && (
+        <ImageSelectorPopup
+          onClose={closePopup}
+          onFileSelect={handleFileSelect}
+          onUrlSelect={handleUrlSelect}
+        />
       )}
     </div>
   );
