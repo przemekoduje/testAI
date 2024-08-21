@@ -1,9 +1,10 @@
 import Associations from "./routers/associations";
+import CameraCapture from "./routers/cameraCapture/CameraCapture";
 import ImageToText from "./routers/ImageToText";
 import {
   createBrowserRouter,
   RouterProvider,
-  Route,
+  
   Link,
 } from "react-router-dom";
 
@@ -19,6 +20,9 @@ function Home() {
           </li>
           <li>
             <Link to="/imagetotext">Image to Text</Link>
+          </li>
+          <li>
+            <Link to="/camera">Camera Capture</Link>
           </li>
         </ul>
       </nav>
@@ -39,6 +43,10 @@ const router = createBrowserRouter([
   {
     path: "/imagetotext",
     element: <ImageToText />,
+  },
+  {
+    path: "/camera",
+    element: <CameraCapture />,
   },
 ]);
 

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import "./imageToText.scss";
-import ImageSelectorPopup from "../components/ImageSelectorPopup";
-import model from "../lib/gemini";
+import "./cameraCapture.scss";
+import CameraSelectorPopup from "../../components/CameraSelectorPopup";
+import model from "../../lib/gemini";
 import { ClipLoader } from "react-spinners";
 import { franc } from 'franc'; // Importowanie franc do detekcji języka
 
-const ImageToText = () => {
+const CameraCapture = () => {
   const [result, setResult] = useState("");
   const [imageSrc, setImageSrc] = useState(null);
   const [prompt, setPrompt] = useState("");
@@ -38,6 +38,10 @@ const ImageToText = () => {
     } catch (error) {
       console.error("Failed to fetch the image from URL", error);
     }
+  };
+
+  const handleCameraCapture = (imageSrc) => {
+    setImageSrc(imageSrc);
   };
 
   const handleSubmit = async (e) => {
@@ -113,14 +117,15 @@ const ImageToText = () => {
         </div>
       </div>
       {isPopupOpen && (
-        <ImageSelectorPopup
+        <CameraSelectorPopup
           onClose={closePopup}
           onFileSelect={handleFileSelect}
           onUrlSelect={handleUrlSelect}
+          onCameraCapture={handleCameraCapture}
         />
       )}
     </div>
   );
 };
 
-export default ImageToText;
+export default CameraCapture;
