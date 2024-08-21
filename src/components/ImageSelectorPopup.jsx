@@ -26,18 +26,16 @@ const ImageSelectorPopup = ({ onClose, onFileSelect, onUrlSelect }) => {
   return (
     <div className="popup">
       <div className="popup-content">
-        <button className="close-btn" onClick={onClose}>
-          &times;
-        </button>
+
         <h2>Select Image</h2>
         <div className="popup-options">
           <div className="file-upload">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-            />
+            <label className="custom-file-upload">
+              Choose File
+              <input type="file" accept="image/*" onChange={handleFileChange} />
+            </label>
           </div>
+          <p>- or -</p>
           <div className="url-upload">
             <input
               type="text"

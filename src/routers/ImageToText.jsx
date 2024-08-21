@@ -11,6 +11,7 @@ const ImageToText = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [promptHistory, setPromptHistory] = useState([]);
 
   const handleInputChange = (e) => {
     setPrompt(e.target.value);
@@ -56,12 +57,16 @@ const ImageToText = () => {
         },
       };
 
-      const languageAwarePrompt = `${prompt} (Odpowiedź w języku: ${detectedLanguage})`;
+      const languageAwarePrompt = `${prompt} (Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) (Odpowiedź w języku: ${detectedLanguage})`;
 
       try {
         const result = await model.generateContent([languageAwarePrompt, imagePart]);
         const responseText = await result.response.text();
         setResult(responseText);
+
+        // Dodaj prompt do historii
+        setPromptHistory((prevHistory) => [prompt, ...prevHistory.slice(0, 4)]); // Zachowaj maksymalnie 5 ostatnich promptów
+
       } catch (error) {
         console.error("Error generating content:", error);
       }
@@ -77,26 +82,38 @@ const ImageToText = () => {
 
   const closePopup = () => {
     setIsPopupOpen(false);
+    setResult("")
   };
 
   return (
     <div className="imagetotext">
+      <div className="prompt-history">
+        {promptHistory.map((historyPrompt, index) => (
+          <div key={index} className="history-item">
+            {historyPrompt}
+          </div>
+        ))}
+      </div>
       <form onSubmit={handleSubmit}>
-        <input
+        <textarea
           className="promptInput"
           type="text"
           value={prompt}
           onChange={handleInputChange}
           placeholder="Enter your prompt here"
+          rows="3"
         />
-        <div className="fileInputWrapper">
-          <button type="button" onClick={openPopup}>
-            Choose Image
+        <div className="buttons">
+          <div className="fileInputWrapper">
+            <button type="button" onClick={openPopup}>
+              Choose Image
+            </button>
+          </div>
+          <button type="submit" className="button1">
+            Generate
           </button>
         </div>
-        <button type="submit" className="button1">
-          Generate
-        </button>
+
       </form>
       <div className="field">
         <div className="image-preview">
@@ -108,7 +125,7 @@ const ImageToText = () => {
               <ClipLoader color="#36d7b7" />
             </div>
           ) : (
-            result && <p>{result}</p>
+            result && <div dangerouslySetInnerHTML={{ __html: result }} />
           )}
         </div>
       </div>
