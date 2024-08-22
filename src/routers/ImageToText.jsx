@@ -3,7 +3,8 @@ import "./imageToText.scss";
 import ImageSelectorPopup from "../components/ImageSelectorPopup";
 import model from "../lib/gemini";
 import { ClipLoader } from "react-spinners";
-import { franc } from 'franc'; // Importowanie franc do detekcji języka
+import { franc } from "franc"; // Importowanie franc do detekcji języka
+import Drawer from "../components/drawe/Drawer";
 
 const ImageToText = () => {
   const [result, setResult] = useState("");
@@ -12,6 +13,7 @@ const ImageToText = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [promptHistory, setPromptHistory] = useState([]);
+  const [currentResult, setCurrentResult] = useState("");
 
   const handleInputChange = (e) => {
     setPrompt(e.target.value);
@@ -60,13 +62,20 @@ const ImageToText = () => {
       const languageAwarePrompt = `${prompt} (Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) (Odpowiedź w języku: ${detectedLanguage})`;
 
       try {
-        const result = await model.generateContent([languageAwarePrompt, imagePart]);
+        const result = await model.generateContent([
+          languageAwarePrompt,
+          imagePart,
+        ]);
         const responseText = await result.response.text();
         setResult(responseText);
 
-        // Dodaj prompt do historii
-        setPromptHistory((prevHistory) => [prompt, ...prevHistory.slice(0, 4)]); // Zachowaj maksymalnie 5 ostatnich promptów
+        // Dodajemy prompt i result do historii
+        setPromptHistory((prevHistory) => [
+          ...prevHistory,
+          { prompt, result: responseText },
+        ]);
 
+        setCurrentResult(responseText); // Ustawiamy obecnie wyświetlany result
       } catch (error) {
         console.error("Error generating content:", error);
       }
@@ -76,25 +85,25 @@ const ImageToText = () => {
     }
   };
 
+  const handleRemovePrompt = (indexToRemove) => {
+    setPromptHistory((prevHistory) =>
+      prevHistory.filter((_, index) => index !== indexToRemove)
+    );
+  };
+
   const openPopup = () => {
     setIsPopupOpen(true);
   };
 
   const closePopup = () => {
     setIsPopupOpen(false);
-    setResult("")
+    setResult("");
   };
 
   return (
     <div className="imagetotext">
-      <div className="prompt-history">
-        {promptHistory.map((historyPrompt, index) => (
-          <div key={index} className="history-item">
-            {historyPrompt}
-          </div>
-        ))}
-      </div>
       <form onSubmit={handleSubmit}>
+        
         <textarea
           className="promptInput"
           type="text"
@@ -113,7 +122,6 @@ const ImageToText = () => {
             Generate
           </button>
         </div>
-
       </form>
       <div className="field">
         <div className="image-preview">
@@ -125,7 +133,7 @@ const ImageToText = () => {
               <ClipLoader color="#36d7b7" />
             </div>
           ) : (
-            result && <div dangerouslySetInnerHTML={{ __html: result }} />
+            currentResult && <div dangerouslySetInnerHTML={{ __html: currentResult }} />
           )}
         </div>
       </div>
@@ -136,6 +144,15 @@ const ImageToText = () => {
           onUrlSelect={handleUrlSelect}
         />
       )}
+      {currentResult && 
+        (
+          <Drawer
+          promptHistory={promptHistory}
+          setCurrentResult={setCurrentResult}
+          handleRemovePrompt={handleRemovePrompt}
+          />
+        )
+      }
     </div>
   );
 };

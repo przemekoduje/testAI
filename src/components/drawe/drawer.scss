@@ -1,0 +1,70 @@
+.drawer {
+  position: fixed;
+  right: -250px;
+  top: 0;
+  width: 250px;
+  height: 400px;
+  display: flex;
+  background-color: #f9f9f9;
+  transition: right 0.3s ease; /* Smooth animation */
+  font-size: 12px;
+
+  &.open{
+    right: 0;
+   
+
+  }
+
+  .openbutton {
+    position: absolute;
+    padding: 10px 25px 10px 10px;
+    font-size: 26px;
+    height: max-content;
+    left: -30px;
+    border: none;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    z-index: 1;
+
+    &.tease{
+        animation: tease 1s ease-in-out;
+        animation-iteration-count: 2;
+
+        @keyframes tease {
+            0% { left: -30px; }
+            25% { left: -50px; }
+            50% { left: -30px; }
+            75% { left: -50px; }
+            100% { left: -30px; }
+          }
+    }
+  }
+  .prompt-history {
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+    padding: 10px;
+    z-index: 2;
+
+    .prompt-item{
+
+        display: flex;
+        gap: 10px;
+        .x {
+            
+            font-size: 8px;
+            width: 15px;
+            height: 15px;
+            border: none;
+            font-size: 12px;
+          }
+        a{
+            margin-bottom: 10px;
+            color: black;
+
+        }
+    }
+
+    
+  }
+}
