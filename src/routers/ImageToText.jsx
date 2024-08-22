@@ -46,49 +46,43 @@ const ImageToText = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!prompt || !imageSrc) return;
+    if (imageSrc) {
+      setLoading(true);
 
-    setLoading(true);
+      // Wykrywanie języka zapytania
+      const detectedLanguage = franc(prompt);
 
-    // Wykrywanie języka zapytania
-    const detectedLanguage = franc(prompt);
+      const imagePart = {
+        inlineData: {
+          data: imageSrc.split(",")[1], // Pobierz tylko dane Base64, bez prefiksu
+          mimeType: "image/jpeg",
+        },
+      };
 
-    const imagePart = {
-      inlineData: {
-        data: imageSrc.split(",")[1], // Pobierz tylko dane Base64, bez prefiksu
-        mimeType: "image/jpeg",
-      },
-    };
+      const languageAwarePrompt = `${prompt} (Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) (Odpowiedź w języku: ${detectedLanguage})`;
 
-    // Tworzenie historii konwersacji
-    const conversationHistory = promptHistory.map(
-      (item) => `User: ${item.prompt}\nAI: ${item.result}\n`
-    ).join("\n");
+      try {
+        const result = await model.generateContent([
+          languageAwarePrompt,
+          imagePart,
+        ]);
+        const responseText = await result.response.text();
+        setResult(responseText);
 
-    const fullPrompt = `${conversationHistory}\nUser: ${prompt}\n(Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) (Odpowiedź w języku: ${detectedLanguage})`;
+        // Dodajemy prompt i result do historii
+        setPromptHistory((prevHistory) => [
+          ...prevHistory,
+          { prompt, result: responseText },
+        ]);
 
-    try {
-      const result = await model.generateContent([
-        fullPrompt,
-        imagePart,
-      ]);
+        setCurrentResult(responseText); // Ustawiamy obecnie wyświetlany result
+      } catch (error) {
+        console.error("Error generating content:", error);
+      }
 
-      const responseText = await result.response.text();
-      setResult(responseText);
-
-      // Dodajemy prompt i result do historii
-      setPromptHistory((prevHistory) => [
-        ...prevHistory,
-        { prompt, result: responseText },
-      ]);
-
-      setCurrentResult(responseText); // Ustawiamy obecnie wyświetlany result
-    } catch (error) {
-      console.error("Error generating content:", error);
+      setPrompt("");
+      setLoading(false);
     }
-
-    setPrompt("");
-    setLoading(false);
   };
 
   const handleRemovePrompt = (indexToRemove) => {
@@ -109,7 +103,7 @@ const ImageToText = () => {
   return (
     <div className="imagetotext">
       <form onSubmit={handleSubmit}>
-
+        
         <textarea
           className="promptInput"
           type="text"
@@ -150,12 +144,12 @@ const ImageToText = () => {
           onUrlSelect={handleUrlSelect}
         />
       )}
-      {currentResult &&
+      {currentResult && 
         (
           <Drawer
-            promptHistory={promptHistory}
-            setCurrentResult={setCurrentResult}
-            handleRemovePrompt={handleRemovePrompt}
+          promptHistory={promptHistory}
+          setCurrentResult={setCurrentResult}
+          handleRemovePrompt={handleRemovePrompt}
           />
         )
       }
