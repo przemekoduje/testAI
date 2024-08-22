@@ -58,7 +58,7 @@ export default function Drawer({
       >
         ♠
       </button>
-      <div className="prompt-history">
+      <div className="prompt-history1">
         {promptHistory.map((item, index) => (
           <div key={index} className="prompt-item">
             

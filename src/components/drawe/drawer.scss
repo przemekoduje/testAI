@@ -25,6 +25,9 @@
     background-color: #f9f9f9;
     cursor: pointer;
     z-index: 1;
+    border-top-left-radius: 10px; /* Zaokrąglenie górnej lewej krawędzi */
+    border-bottom-left-radius: 10px;
+    
 
     &.tease{
         animation: tease 1s ease-in-out;
@@ -39,28 +42,34 @@
           }
     }
   }
-  .prompt-history {
+  .prompt-history1 {
     display: flex;
     flex-direction: column;
     margin: 0px;
     padding: 10px;
     z-index: 2;
+    height: 400px;
+    overflow-y: scroll;
 
     .prompt-item{
-
         display: flex;
+        align-items: flex-start;
         gap: 10px;
         .x {
-            
-            font-size: 8px;
-            width: 15px;
-            height: 15px;
             border: none;
             font-size: 12px;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            cursor: pointer;
           }
         a{
             margin-bottom: 10px;
             color: black;
+            text-decoration: none;
+            cursor: pointer;
 
         }
     }

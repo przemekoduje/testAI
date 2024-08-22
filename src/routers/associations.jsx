@@ -95,6 +95,7 @@ const Associations = () => {
       { text: inputText, type: "user" },
     ]); // Dodaj wpis użytkownika do entries
     generateContent(subject); // Resetowanie odpowiedzi przed nowym wpisem
+    e.target.intext.value = "";
   };
 
   useEffect(() => {
@@ -108,7 +109,7 @@ const Associations = () => {
     <div className="associations">
       <div className="wrapper">
         <form className="newForm" onSubmit={handleSubmit}>
-          <input type="text" name="intext" placeholder="ask me sth..." />
+          <input type="text" name="intext" placeholder="write your idea ..." />
           <button>Send</button>
         </form>
 
