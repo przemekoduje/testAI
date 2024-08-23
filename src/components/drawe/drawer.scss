@@ -5,13 +5,16 @@
   width: 250px;
   height: 400px;
   display: flex;
-  background-color: #f9f9f9;
-  transition: right 0.3s ease; /* Smooth animation */
-  font-size: 12px;
 
-  &.open{
+  transition: right 0.3s ease;
+  /* Smooth animation */
+  font-size: 12px;
+  z-index: 2;
+
+
+  &.open {
     right: 0;
-   
+
 
   }
 
@@ -22,64 +25,87 @@
     height: max-content;
     left: -30px;
     border: none;
-    background-color: #f9f9f9;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     z-index: 1;
-    border-top-left-radius: 10px; /* Zaokrąglenie górnej lewej krawędzi */
+    border-top-left-radius: 10px;
+    /* Zaokrąglenie górnej lewej krawędzi */
     border-bottom-left-radius: 10px;
-    
 
-    &.tease{
-        animation: tease 1s ease-in-out;
-        animation-iteration-count: 2;
 
-        @keyframes tease {
-            0% { left: -30px; }
-            25% { left: -50px; }
-            50% { left: -30px; }
-            75% { left: -50px; }
-            100% { left: -30px; }
-          }
+    &.tease {
+      animation: tease 1s ease-in-out;
+      animation-iteration-count: 2;
+
+      @keyframes tease {
+        0% {
+          left: -30px;
+        }
+
+        25% {
+          left: -50px;
+        }
+
+        50% {
+          left: -30px;
+        }
+
+        75% {
+          left: -50px;
+        }
+
+        100% {
+          left: -30px;
+        }
+      }
     }
   }
+
   .prompt-history1 {
+    position: relative;
     display: flex;
     flex-direction: column;
     margin: 0px;
     padding: 10px;
-    z-index: 2;
+    z-index: 3;
     height: 400px;
     overflow-y: scroll;
-
-    .prompt-item{
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-
-        
-        .x {
-            border: none;
-            font-size: 12px;
-            background-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 5px;
-            cursor: pointer;
-          }
-        a{
-            margin-bottom: 10px;
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-
-            &.active-link {
-              color: green; // Zmienna koloru używana w innych częściach projektu
-            }
-
-        }
-    }
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     
+
+    .prompt-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+
+
+      .x {
+        border: none;
+        font-size: 12px;
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+        cursor: pointer;
+      }
+
+      a {
+        margin-bottom: 10px;
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+
+        &.active-link {
+          color: green; // Zmienna koloru używana w innych częściach projektu
+        }
+
+      }
+    }
+
+
   }
 }

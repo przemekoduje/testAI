@@ -15,8 +15,8 @@ const ImageToText = () => {
   const [loading, setLoading] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [promptHistory, setPromptHistory] = useState([]);
+  
   const [currentResult, setCurrentResult] = useState("");
-
   const [previousResult, setPreviousResult] = useState("");
 
   const handleInputChange = (e) => {
@@ -66,10 +66,12 @@ const ImageToText = () => {
 
     // Tworzenie historii konwersacji
     const conversationHistory = promptHistory
-      .map((item) => `User: ${item.prompt}\nAI: ${item.result}\n`)
+      .map((item) => `User: ${item.prompt}\n AI: ${item.result}\n`)
       .join("\n");
 
-    const fullPrompt = `${conversationHistory}\nUser: ${prompt}\n(Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) (Odpowiedź w języku: ${detectedLanguage})`;
+      console.log(conversationHistory)
+
+    const fullPrompt = `(Odpowiedź w języku: ${detectedLanguage}) ${conversationHistory}\nUser: ${prompt}\n(Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) `;
 
     try {
       const result = await model.generateContent([fullPrompt, imagePart]);
@@ -80,13 +82,16 @@ const ImageToText = () => {
       // Dodajemy prompt i result do historii
       setPromptHistory((prevHistory) => [
         ...prevHistory,
-        { prompt, result: responseText },
+        { prompt, result: responseText, previousResult, currentResult },
       ]);
+
+      console.log(promptHistory)
 
       setPreviousResult(currentResult); // Zapisz poprzedni wynik
       setCurrentResult(responseText); // Ustaw aktualny wynik
 
-      setCurrentResult(responseText); // Ustawiamy obecnie wyświetlany result
+      
+
     } catch (error) {
       console.error("Error generating content:", error);
     }
@@ -94,6 +99,10 @@ const ImageToText = () => {
     setPrompt("");
     setLoading(false);
   };
+
+  console.log(previousResult)
+  console.log(currentResult)
+
 
   const handleRemovePrompt = (indexToRemove) => {
     setPromptHistory((prevHistory) =>
@@ -110,6 +119,8 @@ const ImageToText = () => {
     setResult("");
   };
 
+
+  
   return (
     <div className="imagetotext">
       <form onSubmit={handleSubmit}>
