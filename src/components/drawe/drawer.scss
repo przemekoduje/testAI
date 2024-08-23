@@ -55,6 +55,8 @@
         display: flex;
         align-items: flex-start;
         gap: 10px;
+
+        
         .x {
             border: none;
             font-size: 12px;
@@ -70,6 +72,10 @@
             color: black;
             text-decoration: none;
             cursor: pointer;
+
+            &.active-link {
+              color: green; // Zmienna koloru używana w innych częściach projektu
+            }
 
         }
     }

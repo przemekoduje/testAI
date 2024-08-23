@@ -5,6 +5,8 @@ import model from "../lib/gemini";
 import { ClipLoader } from "react-spinners";
 import { franc } from "franc"; // Importowanie franc do detekcji języka
 import Drawer from "../components/drawe/Drawer";
+import DifferenceDisplay from "../components/DiffMatchPatch/DiffMatchPatch";
+
 
 const ImageToText = () => {
   const [result, setResult] = useState("");
@@ -14,6 +16,8 @@ const ImageToText = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [promptHistory, setPromptHistory] = useState([]);
   const [currentResult, setCurrentResult] = useState("");
+
+  const [previousResult, setPreviousResult] = useState("");
 
   const handleInputChange = (e) => {
     setPrompt(e.target.value);
@@ -46,43 +50,49 @@ const ImageToText = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (imageSrc) {
-      setLoading(true);
+    if (!prompt || !imageSrc) return;
 
-      // Wykrywanie języka zapytania
-      const detectedLanguage = franc(prompt);
+    setLoading(true);
 
-      const imagePart = {
-        inlineData: {
-          data: imageSrc.split(",")[1], // Pobierz tylko dane Base64, bez prefiksu
-          mimeType: "image/jpeg",
-        },
-      };
+    // Wykrywanie języka zapytania
+    const detectedLanguage = franc(prompt);
 
-      const languageAwarePrompt = `${prompt} (Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) (Odpowiedź w języku: ${detectedLanguage})`;
+    const imagePart = {
+      inlineData: {
+        data: imageSrc.split(",")[1], // Pobierz tylko dane Base64, bez prefiksu
+        mimeType: "image/jpeg",
+      },
+    };
 
-      try {
-        const result = await model.generateContent([
-          languageAwarePrompt,
-          imagePart,
-        ]);
-        const responseText = await result.response.text();
-        setResult(responseText);
+    // Tworzenie historii konwersacji
+    const conversationHistory = promptHistory
+      .map((item) => `User: ${item.prompt}\nAI: ${item.result}\n`)
+      .join("\n");
 
-        // Dodajemy prompt i result do historii
-        setPromptHistory((prevHistory) => [
-          ...prevHistory,
-          { prompt, result: responseText },
-        ]);
+    const fullPrompt = `${conversationHistory}\nUser: ${prompt}\n(Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) (Odpowiedź w języku: ${detectedLanguage})`;
 
-        setCurrentResult(responseText); // Ustawiamy obecnie wyświetlany result
-      } catch (error) {
-        console.error("Error generating content:", error);
-      }
+    try {
+      const result = await model.generateContent([fullPrompt, imagePart]);
 
-      setPrompt("");
-      setLoading(false);
+      const responseText = await result.response.text();
+      setResult(responseText);
+
+      // Dodajemy prompt i result do historii
+      setPromptHistory((prevHistory) => [
+        ...prevHistory,
+        { prompt, result: responseText },
+      ]);
+
+      setPreviousResult(currentResult); // Zapisz poprzedni wynik
+      setCurrentResult(responseText); // Ustaw aktualny wynik
+
+      setCurrentResult(responseText); // Ustawiamy obecnie wyświetlany result
+    } catch (error) {
+      console.error("Error generating content:", error);
     }
+
+    setPrompt("");
+    setLoading(false);
   };
 
   const handleRemovePrompt = (indexToRemove) => {
@@ -103,7 +113,6 @@ const ImageToText = () => {
   return (
     <div className="imagetotext">
       <form onSubmit={handleSubmit}>
-        
         <textarea
           className="promptInput"
           type="text"
@@ -133,7 +142,9 @@ const ImageToText = () => {
               <ClipLoader color="#36d7b7" />
             </div>
           ) : (
-            currentResult && <div dangerouslySetInnerHTML={{ __html: currentResult }} />
+            currentResult && (
+              <div dangerouslySetInnerHTML={{ __html: currentResult }} />
+            )
           )}
         </div>
       </div>
@@ -144,15 +155,19 @@ const ImageToText = () => {
           onUrlSelect={handleUrlSelect}
         />
       )}
-      {currentResult && 
-        (
-          <Drawer
+      {currentResult && (
+        <Drawer
           promptHistory={promptHistory}
           setCurrentResult={setCurrentResult}
           handleRemovePrompt={handleRemovePrompt}
-          />
-        )
-      }
+        />
+      )}
+
+      {/* {previousResult && currentResult && (
+        <DifferenceDisplay 
+        oldText={previousResult} newText={currentResult} 
+        />
+      )} */}
     </div>
   );
 };

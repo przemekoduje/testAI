@@ -8,6 +8,7 @@ export default function Drawer({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [shouldTease, setShouldTease] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(null);
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -47,29 +48,44 @@ export default function Drawer({
     }
   }, [isOpen]); // Efekt uruchamia się na podstawie stanu `isOpen`
 
+  const handlePromptClick = (result, index) => {
+    setCurrentResult(result);
+    setCurrentIndex(index);
+  };
+
+  useEffect(() => {
+    // Jeśli dodano nowy element, ustaw go jako aktywny
+    if (promptHistory.length > 0) {
+      setCurrentIndex(promptHistory.length - 1);
+    }
+  }, [promptHistory]); // Efekt uruchamia się przy zmianie długości historii
+
   return (
     <div className={`drawer ${isOpen ? "open" : ""}`}>
       <button
         className={`openbutton ${shouldTease ? "tease" : ""}`}
         onClick={toggleDrawer}
         style={{
-            animationIterationCount: shouldTease ? 3 : 'initial' // Dynamiczna liczba cykli
+            animationIterationCount: shouldTease ? 3 : 'initial'
           }}
       >
         ♠
       </button>
       <div className="prompt-history1">
         {promptHistory.map((item, index) => (
-          <div key={index} className="prompt-item">
-            
+          <div key={index} className="prompt-item" >
             <button className="x" onClick={() => handleRemovePrompt(index)}>
               x
             </button>
-            
-            <a href="#" onClick={() => setCurrentResult(item.result)}>
+            <a href="#" 
+              onClick={() => handlePromptClick(item.result, index)}
+              className={currentIndex === index ? 'active-link' : ''}
+              style={{
+                color: currentIndex === index ? "green" : "initial",
+              }}
+              >
               {item.prompt}
             </a>
-            
           </div>
         ))}
       </div>
