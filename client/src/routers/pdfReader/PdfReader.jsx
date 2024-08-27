@@ -129,7 +129,7 @@ const PdfReader = () => {
                 <div style={{ width: "100%", backgroundColor: "#f3f3f3", marginTop: "20px", position: 'relative' }}>
                     <div
                         style={{
-                            height: "1px",
+                            height: "100px",
                             width: `${progress}%`,
                             backgroundColor: "#4caf50",
                             transition: "width 0.5s",

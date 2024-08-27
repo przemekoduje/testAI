@@ -6,6 +6,7 @@ import { ClipLoader } from "react-spinners";
 import { franc } from "franc"; // Importowanie franc do detekcji języka
 import Drawer from "../components/drawe/Drawer";
 // import DifferenceDisplay from "../components/DiffMatchPatch/DiffMatchPatch";
+import Markdown from "react-markdown"
 
 const ImageToText = () => {
   const [result, setResult] = useState("");
@@ -17,6 +18,9 @@ const ImageToText = () => {
 
   const [currentResult, setCurrentResult] = useState("");
   const [previousResult, setPreviousResult] = useState("");
+
+  const [isEditing, setIsEditing] = useState(false); // Nowy stan dla trybu edycji
+  const [editedText, setEditedText] = useState(""); // Nowy stan dla edytowanego tekstu
 
   const handleInputChange = (e) => {
     setPrompt(e.target.value);
@@ -68,9 +72,7 @@ const ImageToText = () => {
       .map((item) => `User: ${item.prompt}\n AI: ${item.result}\n`)
       .join("\n");
 
-    console.log(conversationHistory);
-
-    const fullPrompt = `(Odpowiedź w języku: ${detectedLanguage}) ${conversationHistory}\nUser: ${prompt}\n(Please format the response using HTML tags such as <h1>, <h2>, <p>, <blockquote>, <a>, etc.) `;
+    const fullPrompt = `(Odpowiedź w języku: ${detectedLanguage}) ${conversationHistory}\nUser: ${prompt}\n (Please format the response using a variety of HTML tags such as <h1>, <h2>, <h3>, <p>, <blockquote>, <ul>, <li>, <a>, <strong>, <em>, <code>, etc. Ensure the response is rich in structure and includes different sections, quotes, lists, and highlighted text to make it visually appealing and well-organized.)`;
 
     try {
       const result = await model.generateContent([fullPrompt, imagePart]);
@@ -84,10 +86,8 @@ const ImageToText = () => {
         { prompt, result: responseText, previousResult, currentResult },
       ]);
 
-      console.log(promptHistory);
-
-      // setPreviousResult(currentResult); // Zapisz poprzedni wynik
       setCurrentResult(responseText); // Ustaw aktualny wynik
+      setEditedText(responseText); // Ustaw edytowany tekst na wynik AI
 
     } catch (error) {
       console.error("Error generating content:", error);
@@ -96,9 +96,6 @@ const ImageToText = () => {
     setPrompt("");
     setLoading(false);
   };
-
-  console.log(previousResult);
-  console.log(currentResult);
 
   const handleRemovePrompt = (indexToRemove) => {
     setPromptHistory((prevHistory) =>
@@ -115,8 +112,50 @@ const ImageToText = () => {
     setResult("");
   };
 
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveClick = () => {
+    setIsEditing(false);
+    setCurrentResult(editedText); // Zapisz zmiany
+  };
+
+  const handleEditedTextChange = (e) => {
+    setEditedText(e.target.value);
+  };
+
   return (
     <div className="imagetotext">
+      <div className="field">
+        <div className="image-preview">
+          {imageSrc && <img src={imageSrc} alt="Selected" />}
+        </div>
+
+        <div className="result">
+          {loading ? (
+            <div className={`loader ${loading ? "active" : ""}`}>
+              <ClipLoader color="#36d7b7" />
+            </div>
+          ) : isEditing ? ( // Jeśli w trybie edycji, wyświetl textarea
+            <>
+              <textarea
+                value={editedText}
+                onChange={handleEditedTextChange}
+                rows="10"
+              />
+              <button onClick={handleSaveClick}>Save</button>
+            </>
+          ) : (
+            currentResult && (
+              <>
+                <div dangerouslySetInnerHTML={{ __html: currentResult }} />
+                <button onClick={handleEditClick}>Edit</button>
+              </>
+            )
+          )}
+        </div>
+      </div>
       <form onSubmit={handleSubmit}>
         <textarea
           className="promptInput"
@@ -137,22 +176,7 @@ const ImageToText = () => {
           </button>
         </div>
       </form>
-      <div className="field">
-        <div className="image-preview">
-          {imageSrc && <img src={imageSrc} alt="Selected" />}
-        </div>
-        <div className="result">
-          {loading ? (
-            <div className={`loader ${loading ? "active" : ""}`}>
-              <ClipLoader color="#36d7b7" />
-            </div>
-          ) : (
-            currentResult && (
-              <div dangerouslySetInnerHTML={{ __html: currentResult }} />
-            )
-          )}
-        </div>
-      </div>
+
       {isPopupOpen && (
         <ImageSelectorPopup
           onClose={closePopup}
@@ -162,19 +186,13 @@ const ImageToText = () => {
       )}
       {currentResult && (
         <Drawer
-        promptHistory={promptHistory}
-        setCurrentResult={setCurrentResult}
-        setPreviousResult={setPreviousResult} // Przekazujemy funkcję do Drawer
-        currentResult={currentResult} // Przekazujemy aktualny wynik do Drawer
-        handleRemovePrompt={handleRemovePrompt}
+          promptHistory={promptHistory}
+          setCurrentResult={setCurrentResult}
+          setPreviousResult={setPreviousResult} // Przekazujemy funkcję do Drawer
+          currentResult={currentResult} // Przekazujemy aktualny wynik do Drawer
+          handleRemovePrompt={handleRemovePrompt}
         />
       )}
-
-      {/* {previousResult && currentResult && (
-        <DifferenceDisplay 
-        oldText={previousResult} newText={currentResult} 
-        />
-      )} */}
     </div>
   );
 };

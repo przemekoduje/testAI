@@ -128,7 +128,7 @@ const CameraCapture = () => {
   };
 
   return (
-    <div className="imagetotext">
+    <div className="imagetotext_cc">
       <form onSubmit={handleSubmit}>
         <input
           className="promptInput"
@@ -146,11 +146,11 @@ const CameraCapture = () => {
           Generate
         </button>
       </form>
-      <div className="field">
-        <div className="image-preview">
+      <div className="field_cc">
+        <div className="image-previe_cc">
           {imageSrc && <img src={imageSrc} alt="Selected" />}
         </div>
-        <div className="result">
+        <div className="result_cc">
           {loading ? (
             <div className={`loader ${loading ? "active" : ""}`}>
               <ClipLoader color="#36d7b7" />

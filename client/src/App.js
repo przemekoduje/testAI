@@ -8,6 +8,9 @@ import {
   Link,
 } from "react-router-dom";
 import PdfReader from "./routers/pdfReader/PdfReader";
+import './App.scss'
+
+
 
 // Komponent Home
 function Home() {
