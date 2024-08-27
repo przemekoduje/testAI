@@ -1,247 +1,193 @@
 .imagetotext {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 
-    .prompt-history {
+  .field {
+    flex: 1;
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    overflow: hidden;
+
+    .image-preview {
+      flex: 1;
+      padding: 30px 0 0 30px;
+      
+
+      img {
+        position: relative;
         width: 100%;
-        padding: 10px 50px;
-        margin-bottom: 20px;
-        max-height: 150px;
-        overflow-y: auto;
-        
-    
-        .history-item {
-            position: relative;
-            font-size: 14px;
-            padding: 5px 0;
-            white-space: pre-wrap;
-            display: flex;
-            align-items: center;
-            .remove-prompt-button {
-                position: absolute;
-                left: -30px;
-                top: 0;
-                background-color: #36d7b7;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                padding: 2px 6px;
-                cursor: pointer;
-                font-size: 12px;
-    
-                &:hover {
-                    background-color: #d1f3ea;
-                }
-            }
+        height: max-content;
+        object-fit: contain;
+        transition: transform 0.5s ease, box-shadow 0.5s ease;
+        cursor: pointer; /* Dodaje kursor wskazujący możliwość interakcji */
+        transform-origin: top left;
+      
+        &:hover {
+          transform: scale(1.1); /* Powiększenie obrazka o 10% i delikatne obrócenie */
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Dodaje cień pod obrazkiem, aby nadać efekt unoszenia */
+          z-index: 1000; /* Ustawia obraz na najwyższą warstwę */
         }
-    }
-    form {
-        position: absolute;
-        width: 100%;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 0 50px;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        flex-wrap: wrap;
-
-
-
-
-        .promptInput {
-            width: 50%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            margin-right: 5px;
-            flex: auto;
-
-
-        }
-
-        .buttons {
-            display: flex;
-
-            .fileInputWrapper {
-                position: relative;
-                display: inline-block;
-
-                button {
-                    display: inline-block;
-                    padding: 10px 20px;
-                    background-color: #36d7b7;
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 16px;
-
-                    &:hover {
-                        background-color: #d1f3ea;
-                    }
-                }
-
-
-
-                .fileInput {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    opacity: 0;
-                    width: 100%;
-                    height: 100%;
-                    cursor: pointer;
-                }
-            }
-
-            .button1 {
-                padding: 10px;
-                border: none;
-                border-radius: 4px;
-                font-size: 16px;
-                background-color: #ccc;
-                cursor: pointer;
-                margin-left: 5px;
-                color: #f5f5f5;
-            }
-        }
-
+      }
     }
 
+    .result {
+      flex: 4;
+      overflow-y: auto;
+      height: 100%;
+      padding: 30px;
 
-    .field {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 760px;
-        height: 450px;
-        margin-top: 50px;
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
+      p {
+        font-size: 14px;
+
+        line-height: 20px;
+        text-indent: 20px;
+      }
+
+      h1 {
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+
+      h2 {
+        font-size: 16px;
+        margin: 10px 0;
+      }
+      h3{
+        font-size: 14px;
+        margin: 10px 0;
+      }
+
+      blockquote {
+        margin-left: 20px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding-left: 10px;
+        border-left: 3px solid #ccc;
+        font-style: italic;
+        color: #555;
+        font-size: 12px;
+      }
+    }
+  }
+
+  form {
+    margin-top: auto;
+
+    width: 100%;
+
+    padding: 50px 30px 30px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    .promptInput {
+      width: 50%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-right: 5px;
+      flex: auto;
+    }
+
+    .buttons {
+      display: flex;
+
+      .fileInputWrapper {
+        position: relative;
+        display: inline-block;
+
+        button {
+          display: inline-block;
+          padding: 10px 20px;
+          background-color: #36d7b7;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 16px;
+
+          &:hover {
+            background-color: #d1f3ea;
+          }
+        }
+
+        .fileInput {
+          position: absolute;
+          left: 0;
+          top: 0;
+          opacity: 0;
+          width: 100%;
+          height: 100%;
+          cursor: pointer;
+        }
+      }
+
+      .button1 {
+        padding: 10px;
         border: none;
-
-        .image-preview {
-            flex: 1;
-            height: 100%;
-            border: none;
-            align-items: flex-start;
-
-
-
-            img {
-                width: 100%;
-                height: auto;
-                object-fit: contain;
-
-            }
-
-
-        }
-
-        .result {
-            flex:2;
-            overflow: auto;
-            max-height: 100%;
-            height: 100%;
-            padding: 0 20px;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-
-
-            p {
-                align-self: start;
-                font-size: 12px;
-                white-space: pre-wrap;
-                line-height: 20px;
-                text-indent: 20px;
-
-            }
-
-            h1 {
-                font-size: 18px;
-            }
-
-            h2 {
-                font-size: 14px;
-                margin-top: 8px;
-            }
-
-            blockquote {
-                margin-left: 20px;
-                margin-top: 10px;
-                margin-bottom: 10px;
-                padding-left: 10px;
-                border-left: 3px solid #ccc;
-                font-style: italic;
-                color: #555;
-                font-size: 12px;
-            }
-
-
-
-        }
-
+        border-radius: 4px;
+        font-size: 16px;
+        background-color: #ccc;
+        cursor: pointer;
+        margin-left: 5px;
+        color: #f5f5f5;
+      }
     }
-
-
+  }
 }
 
-@media (max-width: 768px) {
-    .imagetotext form {
-        flex-direction: column;
+// @media (max-width: 768px) {
+//     .imagetotext form {
+//         flex-direction: column;
 
-        .promptInput {
-            width: 100%;
-        }
+//         .promptInput {
+//             width: 100%;
+//         }
 
-        .buttons {
-            margin-top: 10px;
-           
-            display: flex;
-            align-items: center;
-        }
-    }
+//         .buttons {
+//             margin-top: 10px;
 
+//             display: flex;
+//             align-items: center;
+//         }
+//     }
 
+//     .imagetotext .field {
+//         flex-direction: column;
+//         width: 80%;
+//         height: 450px;
+//         margin-top: 20px;
+//         align-items: center;
 
-    .imagetotext .field {
-        flex-direction: column;
-        width: 80%;
-        height: 450px;
-        margin-top: 20px;
-        align-items: center;
+//         .image-preview {
+//             width: 100%;
+//             height: 50%;
 
-        .image-preview {
-            width: 100%;
-            height: 50%;
+//             img {
+//                 width: 100%;
+//                 height: 100%;
+//                 object-fit: cover;
+//             }
+//         }
 
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-        }
+//         .result {
+//             margin-top: 30px;
+//             width: 100%;
+//             padding: 10px;
+//             flex: 1;
 
-        .result {
-            margin-top: 30px;
-            width: 100%;
-            padding: 10px;
-            flex: 1;
+//             p {
+//                 font-size: 14px;
+//             }
+//         }
+//     }
 
-            p {
-                font-size: 14px;
-            }
-        }
-    }
-
-
-
-
-}
+// }

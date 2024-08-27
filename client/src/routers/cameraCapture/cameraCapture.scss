@@ -1,4 +1,4 @@
-.imagetotext {
+.imagetotext_cc {
     position: relative;
     width: 100vw;
     height: 100vh;
@@ -76,7 +76,7 @@
 
     }
 
-    .field {
+    .field_cc {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -104,7 +104,7 @@
 
         }
 
-        .result {
+        .result_cc {
             flex: 1;
             overflow: auto;
             max-height: 100%;
