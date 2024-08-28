@@ -89,6 +89,16 @@ const ImageToText = () => {
       setCurrentResult(responseText); // Ustaw aktualny wynik
       setEditedText(responseText); // Ustaw edytowany tekst na wynik AI
 
+      
+      // Wysyłanie promptu i odpowiedzi do serwera
+    await fetch("http://localhost:8800/api/chats", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt, response: responseText }),
+    });
+
     } catch (error) {
       console.error("Error generating content:", error);
     }
@@ -151,7 +161,7 @@ const ImageToText = () => {
             <div className={`loader ${loading ? "active" : ""}`}>
               <ClipLoader color="#36d7b7" />
             </div>
-          ) : isEditing ? ( // Jeśli w trybie edycji, wyświetl textarea
+          ) : isEditing ? ( // Jeśli w trybie edycji, wyświetl edytor
             <>
               <ReactQuill
                 value={editedText}
@@ -179,13 +189,13 @@ const ImageToText = () => {
                   "align",
                 ]}
               />
-              <button onClick={handleSaveClick}>Save</button>
+              <button className="saveButton" onClick={handleSaveClick}>Save</button>
             </>
           ) : (
             currentResult && (
               <>
                 <div dangerouslySetInnerHTML={{ __html: currentResult }} />
-                <button onClick={handleEditClick}>Edit</button>
+                <button className="editButton" onClick={handleEditClick}>Edit</button>
               </>
             )
           )}
@@ -196,6 +206,7 @@ const ImageToText = () => {
           className="promptInput"
           type="text"
           value={prompt}
+          name="text"
           onChange={handleInputChange}
           placeholder="Enter your prompt here"
           rows="3"

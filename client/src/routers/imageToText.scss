@@ -29,7 +29,7 @@
         transform-origin: top left;
       
         &:hover {
-          transform: scale(1.1); /* Powiększenie obrazka o 10% i delikatne obrócenie */
+          transform: scale(1.5); /* Powiększenie obrazka o 10% i delikatne obrócenie */
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Dodaje cień pod obrazkiem, aby nadać efekt unoszenia */
           z-index: 1000; /* Ustawia obraz na najwyższą warstwę */
         }
@@ -41,6 +41,24 @@
       overflow-y: auto;
       height: 100%;
       padding: 30px;
+
+      .saveButton,
+      .editButton{
+        padding: 7px 15px;
+        border: 1px solid rgb(192, 192, 192);
+        margin-top: 10px;
+        background-color: rgb(192, 192, 192);
+        color: white ;
+        border-radius: 5px;
+
+        &:hover{
+          background-color: rgb(255, 255, 255);
+          color: rgb(177, 177, 177) ;
+          border: 1px solid rgb(177, 177, 177);
+        }
+
+
+      }
 
       p {
         font-size: 14px;

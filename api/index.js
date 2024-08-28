@@ -6,6 +6,8 @@ import { GoogleAIFileManager } from "@google/generative-ai/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
 import cors from "cors"; // Import cors
+import mongoose from "mongoose";
+import Prompt from "./models/prompts.js"
 
 dotenv.config();
 
@@ -17,6 +19,16 @@ const upload = multer({ dest: "uploads/" });
 
 app.use(cors());
 app.use(express.json());
+
+
+const connect = async ()=> {
+  try{
+    await mongoose.connect(process.env.MONGO)
+    console.log("connected to Mongodb")
+  }catch(err){
+    console.log(err)
+  }
+}
 
 // Inicjalizacja GoogleAIFileManager i GoogleGenerativeAI
 const fileManager = new GoogleAIFileManager(process.env.REACT_APP_GEMINI_PUBLIC_KEY);
@@ -91,6 +103,60 @@ app.post("/api/generate", async (req, res) => {
   }
 });
 
+// Endpoint do zapisywania promptu i odpowiedzi
+app.post("/api/chats", async (req, res) => {
+  try {
+    const { prompt, response } = req.body;
+
+    if (!prompt || !response) {
+      return res.status(400).json({ error: "Prompt and response are required" });
+    }
+
+    const newPrompt = new Prompt({ prompt, response });
+    await newPrompt.save();
+
+    res.status(201).json({ message: "Prompt and response saved successfully" });
+  } catch (error) {
+    console.error("Error saving prompt and response:", error);
+    res.status(500).json({ error: "Error saving prompt and response" });
+  }
+});
+
+
+app.put("/api/chats/:id", async (req, res) => {
+  try {
+    const { id } = req.params; // Identyfikator promptu
+    const { response } = req.body; // Zaktualizowana odpowiedź
+
+    if (!response) {
+      return res.status(400).json({ error: "Response is required" });
+    }
+
+    // Znalezienie i zaktualizowanie promptu na podstawie ID
+    const updatedPrompt = await Prompt.findByIdAndUpdate(
+      id,
+      { response },
+      { new: true } // Zwraca zaktualizowany dokument
+    );
+
+    if (!updatedPrompt) {
+      return res.status(404).json({ error: "Prompt not found" });
+    }
+
+    res.status(200).json({ message: "Response updated successfully", updatedPrompt });
+  } catch (error) {
+    console.error("Error updating response:", error);
+    res.status(500).json({ error: "Error updating response" });
+  }
+});
+
+
+
+
+
+
+
 app.listen(port, () => {
+  connect()
   console.log(`Server is running on ${port}`);
 });
