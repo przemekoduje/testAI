@@ -52,57 +52,69 @@ const ImageToText = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!prompt || !imageSrc) return;
-
+  
     setLoading(true);
-
+  
     // Wykrywanie języka zapytania
     const detectedLanguage = franc(prompt);
-
+  
     const imagePart = {
       inlineData: {
         data: imageSrc.split(",")[1], // Pobierz tylko dane Base64, bez prefiksu
         mimeType: "image/jpeg",
       },
     };
-
+  
     // Tworzenie historii konwersacji
     const conversationHistory = promptHistory
       .map((item) => `User: ${item.prompt}\n AI: ${item.result}\n`)
       .join("\n");
-
+  
     const fullPrompt = `(Odpowiedź w języku: ${detectedLanguage}) ${conversationHistory}\nUser: ${prompt}\n (Please format the response using a variety of HTML tags such as <h1>, <h2>, <h3>, <p>, <blockquote>, <ul>, <li>, <a>, <strong>, <em>, <code>, etc. Ensure the response is rich in structure and includes different sections, quotes, lists, and highlighted text to make it visually appealing and well-organized.)`;
-
+  
     try {
       const result = await model.generateContent([fullPrompt, imagePart]);
-
       const responseText = await result.response.text();
-      setResult(responseText);
+  
+      // Wyślij prompt i odpowiedź do backendu, aby je zapisać
+      const saveResponse = await fetch("http://localhost:8800/api/chats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt, response: responseText }),
+      });
+  
+      if (!saveResponse.ok) {
+        throw new Error("Failed to save chat");
+      }
+  
+      const savedChat = await saveResponse.json(); // Tutaj otrzymujemy zapisany chat, w tym jego ID
+  
+      console.log(savedChat)
 
-      // Dodajemy prompt i result do historii
+
+      // Dodajemy prompt i result do historii z ID
       setPromptHistory((prevHistory) => [
         ...prevHistory,
-        { prompt, result: responseText, previousResult, currentResult },
+        { 
+          _id: savedChat._id, // Przechowaj ID odpowiedzi
+          prompt, 
+          result: responseText, 
+          previousResult, 
+          currentResult 
+        },
       ]);
-
-      setCurrentResult(responseText); // Ustaw aktualny wynik
-      setEditedText(responseText); // Ustaw edytowany tekst na wynik AI
-
-      
-      // Wysyłanie promptu i odpowiedzi do serwera
-    await fetch("http://localhost:8800/api/chats", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt, response: responseText }),
-    });
-
+  
+      setCurrentResult(responseText);
+      setEditedText(responseText);
+  
     } catch (error) {
       console.error("Error generating content:", error);
     }
-
+  
     setPrompt("");
     setLoading(false);
   };
@@ -131,24 +143,49 @@ const ImageToText = () => {
     setEditedText(value);
   };
 
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     setIsEditing(false);
     setCurrentResult(editedText); // Zapisz zmiany
+  
+    const lastPrompt = promptHistory[promptHistory.length - 1]; // Pobierz ostatni zapisany prompt
+    const promptId = lastPrompt._id; // Zakładamy, że `_id` jest przechowywane
+    
 
-    // Aktualizujemy historię z nowym currentResult
-    setPromptHistory((prevHistory) =>
-      prevHistory.map((item, index) =>
-        index === prevHistory.length - 1 // Aktualizujemy tylko ostatni element
-          ? { ...item, result: editedText }
-          : item
-      )
-    );
+    console.log(lastPrompt)
+
+    try {
+      // Zaktualizuj prompt w bazie danych
+      const response = await fetch(`http://localhost:8800/api/chats/${promptId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ response: editedText }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update response");
+      }
+  
+      const data = await response.json();
+  
+      // Aktualizujemy historię z nowym currentResult
+      setPromptHistory((prevHistory) =>
+        prevHistory.map((item, index) =>
+          index === prevHistory.length - 1 // Aktualizujemy tylko ostatni element
+            ? { ...item, result: editedText }
+            : item
+        )
+      );
+  
+      console.log("Response updated successfully:", data);
+    } catch (error) {
+      console.error("Error updating response:", error);
+    }
   };
-
-
   
 
-  console.log(currentResult)
+  
   return (
     <div className="imagetotext">
       <div className="field">
