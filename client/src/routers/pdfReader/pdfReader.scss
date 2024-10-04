@@ -1,32 +1,140 @@
-.progress-bar {
+.pdf-reader-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .progress-bar-container {
+    position: absolute;
+    bottom: 1px;
+    left: 0;
     width: 100%;
     background-color: #f3f3f3;
-    border-radius: 5px;
-    margin-top: 10px;
-    overflow: hidden;
-}
+  }
 
-.progress-bar-fill {
-    height: 20px;
+  .progress-bar {
+    height: 2px; /* Zwiększyłem wysokość dla lepszej widoczności */
     background-color: #4caf50;
-    text-align: center;
-    line-height: 20px;
-    color: white;
-    border-radius: 5px;
-}
-.progress-bar {
-    width: 100%;
-    background-color: #f3f3f3;
-    border-radius: 5px;
-    margin-top: 10px;
-    overflow: hidden;
-}
+    width: 0; /* Domyślnie zaczynamy od 0% */
+    transition: width 0.5s ease-in-out; /* Animacja płynnego przejścia */
+  }
 
-.progress-bar-fill {
-    height: 20px;
-    background-color: #4caf50;
-    text-align: center;
-    line-height: 20px;
-    color: white;
-    border-radius: 5px;
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Wysokość dostosowana do całego kontenera */
+  }
+  .suggested-questions {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  
+    h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+  
+    ul {
+      list-style-type: disc;
+      padding-left: 20px;
+      
+      li {
+        margin-bottom: 5px;
+      }
+    }
+  }
+  
+
+  .upload-button-container {
+    .upload-button {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background-color: transparent;
+      border: 1px solid rgb(228, 228, 228);
+      font-size: 15px;
+
+      &:hover {
+        background-color: rgb(228, 228, 228);
+        color: rgb(107, 107, 107);
+      }
+    }
+  }
+
+  .generated-text{
+    width: 50%;
+    height: 70%;
+    border: 1px solid red;
+  }
+
+  .bottom-panel {
+    width: 70%;
+    margin-bottom: 20px;
+    border-top: 1px solid rgb(228, 228, 228);
+    border-bottom: 1px solid rgb(228, 228, 228);
+
+    border-radius: 50px;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background-color: rgb(255, 255, 255);
+    z-index: 1;
+
+    .mini-upload-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: transparent;
+      border: 1px solid rgb(228, 228, 228);
+      font-size: 15px;
+
+      &:hover {
+        background-color: rgb(228, 228, 228);
+        color: rgb(107, 107, 107);
+      }
+    }
+
+    textarea {
+      border: none;
+      flex: 1;
+      outline: none;
+    }
+
+    .send {
+      margin-left: auto;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: transparent;
+      border: 1px solid rgb(228, 228, 228);
+      font-size: 15px;
+    }
+
+    .file-links {
+      position: absolute;
+
+      top: -44px;
+      left: 50px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      button {
+        height: 44px;
+        padding: 0 10px;
+        background-color: transparent;
+        border: 1px solid rgb(228, 228, 228);
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+      }
+    }
+  }
 }
