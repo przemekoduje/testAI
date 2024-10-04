@@ -40,6 +40,8 @@ const ImageToText = () => {
       const blob = await response.blob();
       const reader = new FileReader();
 
+      
+
       reader.onloadend = () => {
         setImageSrc(reader.result); // Obraz w formacie Base64
       };
@@ -49,7 +51,7 @@ const ImageToText = () => {
       console.error("Failed to fetch the image from URL", error);
     }
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -66,6 +68,8 @@ const ImageToText = () => {
         mimeType: "image/jpeg",
       },
     };
+
+    
   
     // Tworzenie historii konwersacji
     const conversationHistory = promptHistory
@@ -151,8 +155,6 @@ const ImageToText = () => {
     const promptId = lastPrompt._id; // Zakładamy, że `_id` jest przechowywane
     
 
-    console.log(lastPrompt)
-
     try {
       // Zaktualizuj prompt w bazie danych
       const response = await fetch(`http://localhost:8800/api/chats/${promptId}`, {
@@ -162,12 +164,16 @@ const ImageToText = () => {
         },
         body: JSON.stringify({ response: editedText }),
       });
+
+      
   
       if (!response.ok) {
         throw new Error("Failed to update response");
       }
   
       const data = await response.json();
+
+      
   
       // Aktualizujemy historię z nowym currentResult
       setPromptHistory((prevHistory) =>

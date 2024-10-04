@@ -9,6 +9,7 @@ import cors from "cors"; // Import cors
 import mongoose from "mongoose";
 import Prompt from "./models/prompts.js"
 // import Story from "./models/Story.js";
+import Chat from "./models/chat.js"
 
 dotenv.config();
 
@@ -107,15 +108,35 @@ app.post("/api/generate", async (req, res) => {
 // Endpoint do zapisywania promptu i odpowiedzi
 app.post("/api/chats", async (req, res) => {
   try {
-    const { prompt, response } = req.body;
+    const {  prompt, response } = req.body;
 
     if (!prompt || !response) {
       return res.status(400).json({ error: "Prompt and response are required" });
     }
 
-    const newPrompt = new Prompt({ prompt, response });
-    const savedChat = await newPrompt.save();
+    // const newPrompt = new Prompt({ prompt, response });
+    
+    // const savedChat = await newPrompt.save();
+    // console.log(savedChat)
 
+
+
+    // res.status(201).json(savedChat);
+    const newChat = new Chat({
+      // userId,
+      history: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+        {
+          role: "model",
+          parts: [{ text: response }],
+        },
+      ],
+    });
+
+    const savedChat = await newChat.save();
     res.status(201).json(savedChat);
   } catch (error) {
     console.error("Error saving prompt and response:", error);
@@ -124,6 +145,7 @@ app.post("/api/chats", async (req, res) => {
 });
 
 
+//UPDATE RESPONSE BY USER
 app.put("/api/chats/:id", async (req, res) => {
   try {
     const { id } = req.params; // Identyfikator promptu
@@ -151,56 +173,6 @@ app.put("/api/chats/:id", async (req, res) => {
   }
 });
 
-
-// app.post("/api/stories", async (req, res) => {
-//   try {
-//     const { imageSrc, prompt, response } = req.body;
-
-//     const newStory = new Story({
-//       imageSrc,
-//       prompts: [{ prompt, response }],
-//     });
-
-//     const savedStory = await newStory.save();
-//     res.status(201).json(savedStory);
-//   } catch (error) {
-//     console.error("Error creating story:", error);
-//     res.status(500).json({ error: "Error creating story" });
-//   }
-// });
-
-
-// app.put("/api/stories/:id", async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { prompt, response } = req.body;
-
-//     const updatedStory = await Story.findByIdAndUpdate(
-//       id,
-//       { $push: { prompts: { prompt, response } } },
-//       { new: true }
-//     );
-
-//     if (!updatedStory) {
-//       return res.status(404).json({ error: "Story not found" });
-//     }
-
-//     res.status(200).json(updatedStory);
-//   } catch (error) {
-//     console.error("Error updating story:", error);
-//     res.status(500).json({ error: "Error updating story" });
-//   }
-// });
-
-// app.get("/api/stories", async (req, res) => {
-//   try {
-//     const stories = await Story.find();
-//     res.status(200).json(stories);
-//   } catch (error) {
-//     console.error("Error fetching stories:", error);
-//     res.status(500).json({ error: "Failed to fetch stories" });
-//   }
-// });
 
 
 
