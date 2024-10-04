@@ -1,171 +1,221 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./pdfReader.scss";
-
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import { ClipLoader } from "react-spinners";
 
 const PdfReader = () => {
-    const [files, setFiles] = useState([]);
-    const [prompt, setPrompt] = useState("");
-    const [fileUris, setFileUris] = useState([]);
-    const [summary, setSummary] = useState("");
-    const [uploadedFileNames, setUploadedFileNames] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [prompt, setPrompt] = useState("");
+  const [fileUris, setFileUris] = useState([]);
+  const [summary, setSummary] = useState("");
+  const [uploadedFileNames, setUploadedFileNames] = useState([]);
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [suggestions, setSuggestions] = useState([]); // Sugestie dla użytkownika
+  const [panelVisible, setPanelVisible] = useState(false); // Zarządzanie widocznością panelu
 
-    const [uploadProgress, setUploadProgress] = useState(0); // Stan do postępu uploadu
-    const [loading, setLoading] = useState(false); // Stan do zarządzania widocznością paska postępu
-    const [progress, setProgress] = useState(0); // Stan do animacji paska postępu
-    
+  const [loading, setLoading] = useState(false); // Stan do zarządzania widocznością paska postępu
+  const [progress, setProgress] = useState(0); // Stan do animacji paska postępu
+  const [loadingSummary, setLoadingSummary] = useState(false); // Stan ładowania wiadomości
 
-    const handleFileChange = (e) => {
-        setFiles([...files, ...e.target.files]);
-    };
+  // Ukryty input dla pliku PDF, wywoływany przez przycisk "Upload PDFs"
+  const hiddenFileInput = React.useRef(null);
 
-    const handlePromptChange = (e) => {
-        setPrompt(e.target.value);
-    };
+  // Funkcja do obsługi wyboru pliku
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
+    handleUpload(selectedFiles); // Automatycznie uploaduj plik
+  };
 
-    // const handleUpload = async () => {
-    //     const formData = new FormData();
-    //     files.forEach(file => formData.append('files', file));
+  const handlePromptChange = (e) => {
+    setPrompt(e.target.value);
+  };
 
-    
-    //     try {
-    //         const response = await fetch('http://localhost:8800/api/upload/', {
-    //             method: 'POST',
-    //             body: formData,
-    //         });
+  // Automatyczne uploadowanie plików
+  const handleUpload = async (selectedFiles) => {
+    const formData = new FormData();
+    selectedFiles.forEach((file) => formData.append("files", file));
 
-    //         const result = await response.json();
-    //         console.log(result);
+    setLoading(true); // Włącz pasek postępu
+    setProgress(0); // Resetuj postęp
 
-    //         setFileUris(result.files.map(file => file.fileUri));
-    //         setUploadedFileNames(result.files.map(file => file.fileName));
-    //     } catch (error) {
-    //         console.error('Error uploading files:', error);
-    //     }finally {
-    //     }
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://localhost:8800/api/upload/", true);
 
-    // };
-
-    useEffect(() => {
-        if (loading) {
-            const updateProgress = () => {
-                if (progress < uploadProgress) {
-                    setProgress(prev => Math.min(prev + 1, uploadProgress));
-                    requestAnimationFrame(updateProgress);
-                }
-            };
-            updateProgress();
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round(
+            (event.loaded / event.total) * 100
+          );
+          setProgress(percentComplete);
         }
-    }, [loading, uploadProgress, progress]);
+      };
 
-    const handleUpload = async () => {
-        const formData = new FormData();
-        files.forEach(file => formData.append('files', file));
-
-        setLoading(true); // Włącz pasek postępu
-        setUploadProgress(0); // Resetuj postęp przed rozpoczęciem uploadu
-        setProgress(0); // Resetuj animowany postęp
-
-        try {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://localhost:8800/api/upload/', true);
-
-            // Funkcja do aktualizacji postępu uploadu
-            xhr.upload.onprogress = (event) => {
-                if (event.lengthComputable) {
-                    const percentComplete = Math.round((event.loaded / event.total) * 100);
-                    setUploadProgress(percentComplete);
-                }
-            };
-
-            // Funkcja do obsługi zakończenia uploadu
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    const result = JSON.parse(xhr.responseText);
-                    console.log(result);
-                    setFileUris(result.files.map(file => file.fileUri));
-                    setUploadedFileNames(result.files.map(file => file.fileName));
-                    setUploadProgress(100); // Ustaw na 100% po zakończeniu
-                } else {
-                    console.error('Error uploading files:', xhr.statusText);
-                }
-                setLoading(false); // Wyłącz pasek postępu po zakończeniu
-            };
-
-            // Funkcja do obsługi błędów
-            xhr.onerror = () => {
-                console.error('Network Error');
-                setLoading(false); // Wyłącz pasek postępu w przypadku błędu
-            };
-
-            xhr.send(formData);
-        } catch (error) {
-            console.error('Error uploading files:', error);
-            setLoading(false); // Wyłącz pasek postępu w przypadku błędu
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const result = JSON.parse(xhr.responseText);
+          setFileUris(result.files.map((file) => file.fileUri));
+          setUploadedFileNames(result.files.map((file) => file.fileName));
+          setProgress(100); // Ustaw 100% po zakończeniu
+          setIsFileUploaded(true); // Plik został załadowany
+          setPanelVisible(true); // Wyświetl dolny panel
+          handleAnalyze(result.files.map((file) => file.fileUri)); // Analiza AI
+        } else {
+          console.error("Error uploading files:", xhr.statusText);
         }
-    };
+        setLoading(false);
+      };
 
-    const handleGenerate = async () => {
-        const response = await fetch('http://localhost:8800/api/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ fileUris, prompt }),
-        });
+      xhr.onerror = () => {
+        console.error("Network Error");
+        setLoading(false);
+      };
 
-        const result = await response.json();
-        console.log(result);
-        setSummary(result.summary);
-    };
+      xhr.send(formData);
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div>
-            <input type="file" accept="application/pdf" multiple onChange={handleFileChange} />
-            <button onClick={handleUpload}>Upload PDF(s)</button>
-            
-            
-            {/* Pasek postępu */}
-            {loading && (
-                <div style={{ width: "100%", backgroundColor: "#f3f3f3", marginTop: "20px", position: 'relative' }}>
-                    <div
-                        style={{
-                            height: "100px",
-                            width: `${progress}%`,
-                            backgroundColor: "#4caf50",
-                            transition: "width 0.5s",
-                        }}
-                    />
-                   
-                </div>
-            )}
+  // Funkcja do analizy dokumentu za pomocą AI
+  const handleAnalyze = async (fileUris) => {
+    setLoadingSummary(true); // Ustawiamy ładowanie dla `summary`
+    const response = await fetch("http://localhost:8800/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fileUris, prompt: "Przedstaw podsumowanie dokumentu w trzech punktach. Użyj nagłówków <h1>, <h2> do kluczowych sekcji, a także użyj <blockquote> dla cytatów, <p> dla paragrafów. Na końcu podaj 3 sugerowane pytania w formacie listy." }),
+    });
 
+    const result = await response.json();
+    setSummary(result.summary); // Streszczenie dokumentu
+    setSuggestions(result.suggestions || []); // Sugerowane pytania AI
+    setLoadingSummary(false); // Wyłączamy ładowanie po zakończeniu generowania
+  };
 
-            {uploadedFileNames.length > 0 && (
-                <div>
-                    <h2>Uploaded file(s):</h2>
-                    <ul>
-                        {uploadedFileNames.map((fileName, index) => (
-                            <li key={index}>{fileName}</li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+  const handleGenerate = async () => {
+    setLoadingSummary(true); // Ustawiamy ładowanie dla `summary`
+    const response = await fetch("http://localhost:8800/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        fileUris, 
+        prompt: `Odpowiedz na pytanie: ${prompt}. Proszę sformatować odpowiedź w HTML z użyciem <h1>, <h2>, <p>, <blockquote> oraz <ul><li> dla list.` 
+      }),
+    });
 
-            <textarea
-                value={prompt}
-                onChange={handlePromptChange}
-                placeholder="Enter your prompt here"
-            />
-            <button onClick={handleGenerate}>Generate Content</button>
+    const result = await response.json();
+    setSummary(result.summary);
+    setLoadingSummary(false); // Wyłączamy ładowanie po zakończeniu generowania
+  };
 
-            {summary && (
-                <div>
-                    <h2>Summary:</h2>
-                    <p>{summary}</p>
-                </div>
-            )}
+  const handleClick = () => {
+    hiddenFileInput.current.click();
+  };
+
+  return (
+    <div className="pdf-reader-container">
+      {/* Centralny przycisk "Upload PDFs" */}
+      {!isFileUploaded && (
+        <div className="upload-button-container">
+          <button className="upload-button" onClick={handleClick}>
+            Upload <br />PDF(s)
+          </button>
         </div>
-    );
+      )}
+
+      {loading && (
+        <div className="progress-bar-container">
+          <div
+            className="progress-bar"
+            style={{
+              width: `${progress}%`, // Nadal kontrolujemy szerokość paska za pomocą stanu
+            }}
+          />
+        </div>
+      )}
+
+      {/* Ukryty input do wyboru pliku */}
+      <input
+        type="file"
+        accept="application/pdf"
+        multiple
+        ref={hiddenFileInput}
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
+
+      {/* Sekcja sugerowanych pytań */}
+      {isFileUploaded && !prompt && suggestions.length > 0 && (
+        <div className="suggested-questions">
+          <h2>Suggested Questions:</h2>
+          <p>Here are some important points about the document:</p>
+          <ul>
+            {suggestions.map((suggestion, index) => (
+              <li key={index}>{suggestion}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Wygenerowany tekst */}
+      {loadingSummary ? ( // Pokazujemy loader, gdy trwa ładowanie `summary`
+        <div className="spinner-container">
+          <ClipLoader color="#4caf50" size={50} />
+        </div>
+      ) : (
+        summary && (
+          <div className="generated-text">
+            <h2>Summary:</h2>
+            {/* Stylizowany tekst generowany przez AI */}
+            <div
+              className="stylized-content"
+              dangerouslySetInnerHTML={{ __html: summary }}
+            />
+          </div>
+        )
+      )}
+
+      {/* Dolny panel z 4 elementami */}
+      {panelVisible && (
+        <div className="bottom-panel">
+          <button className="mini-upload-button" onClick={handleClick}>
+            <AttachFileIcon />
+          </button>
+
+          <textarea
+            value={prompt}
+            onChange={handlePromptChange}
+            placeholder="Enter your prompt here"
+            rows="2"
+          />
+
+          <button className="send" onClick={handleGenerate}>
+            <ArrowUpwardIcon />
+          </button>
+
+          {uploadedFileNames.length > 0 && (
+            <div className="file-links">
+              {uploadedFileNames.map((fileName, index) => (
+                <button
+                  key={index}
+                  onClick={() => window.open(fileUris[index], "_blank")}
+                >
+                  {fileName}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default PdfReader;

@@ -7,6 +7,7 @@ import { franc } from "franc"; // Importowanie franc do detekcji języka
 import Drawer from "../components/drawe/Drawer";
 import "react-quill/dist/quill.snow.css";
 import ReactQuill from "react-quill";
+import StoryList from "../components/storyList/StoryList";
 
 const ImageToText = () => {
   const [result, setResult] = useState("");
@@ -21,6 +22,24 @@ const ImageToText = () => {
 
   const [isEditing, setIsEditing] = useState(false); // Nowy stan dla trybu edycji
   const [editedText, setEditedText] = useState(""); // Nowy stan dla edytowanego tekstu
+
+
+  // const chat = model.startChat({
+  //   history: [
+  //     {
+  //       role: "user",
+  //       parts: [{ text: "hello Ai"}]
+  //     },
+  //     {
+  //       role: "model",
+  //       parts: [{ text: "hello human"}]
+  //     }
+  //   ],
+  //   generationConfig: {
+  //     // maxOutputTokens:
+  //   }
+  // })
+
 
   const handleInputChange = (e) => {
     setPrompt(e.target.value);
@@ -54,14 +73,14 @@ const ImageToText = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!prompt || !imageSrc) return;
-  
+
     setLoading(true);
-  
+
     // Wykrywanie języka zapytania
     const detectedLanguage = franc(prompt);
-  
+
     const imagePart = {
       inlineData: {
         data: imageSrc.split(",")[1], // Pobierz tylko dane Base64, bez prefiksu
@@ -75,13 +94,13 @@ const ImageToText = () => {
     const conversationHistory = promptHistory
       .map((item) => `User: ${item.prompt}\n AI: ${item.result}\n`)
       .join("\n");
-  
+
     const fullPrompt = `(Odpowiedź w języku: ${detectedLanguage}) ${conversationHistory}\nUser: ${prompt}\n (Please format the response using a variety of HTML tags such as <h1>, <h2>, <h3>, <p>, <blockquote>, <ul>, <li>, <a>, <strong>, <em>, <code>, etc. Ensure the response is rich in structure and includes different sections, quotes, lists, and highlighted text to make it visually appealing and well-organized.)`;
-  
+
     try {
       const result = await model.generateContent([fullPrompt, imagePart]);
       const responseText = await result.response.text();
-  
+
       // Wyślij prompt i odpowiedź do backendu, aby je zapisać
       const saveResponse = await fetch("http://localhost:8800/api/chats", {
         method: "POST",
@@ -90,35 +109,33 @@ const ImageToText = () => {
         },
         body: JSON.stringify({ prompt, response: responseText }),
       });
-  
+
       if (!saveResponse.ok) {
         throw new Error("Failed to save chat");
       }
-  
-      const savedChat = await saveResponse.json(); // Tutaj otrzymujemy zapisany chat, w tym jego ID
-  
-      console.log(savedChat)
 
+      const savedChat = await saveResponse.json(); // Tutaj otrzymujemy zapisany chat, w tym jego ID
+
+      console.log(savedChat);
 
       // Dodajemy prompt i result do historii z ID
       setPromptHistory((prevHistory) => [
         ...prevHistory,
-        { 
+        {
           _id: savedChat._id, // Przechowaj ID odpowiedzi
-          prompt, 
-          result: responseText, 
-          previousResult, 
-          currentResult 
+          prompt,
+          result: responseText,
+          previousResult,
+          currentResult,
         },
       ]);
-  
+
       setCurrentResult(responseText);
       setEditedText(responseText);
-  
     } catch (error) {
       console.error("Error generating content:", error);
     }
-  
+
     setPrompt("");
     setLoading(false);
   };
@@ -150,10 +167,9 @@ const ImageToText = () => {
   const handleSaveClick = async () => {
     setIsEditing(false);
     setCurrentResult(editedText); // Zapisz zmiany
-  
+
     const lastPrompt = promptHistory[promptHistory.length - 1]; // Pobierz ostatni zapisany prompt
     const promptId = lastPrompt._id; // Zakładamy, że `_id` jest przechowywane
-    
 
     try {
       // Zaktualizuj prompt w bazie danych
@@ -170,7 +186,7 @@ const ImageToText = () => {
       if (!response.ok) {
         throw new Error("Failed to update response");
       }
-  
+
       const data = await response.json();
 
       
@@ -183,20 +199,22 @@ const ImageToText = () => {
             : item
         )
       );
-  
+
       console.log("Response updated successfully:", data);
     } catch (error) {
       console.error("Error updating response:", error);
     }
   };
-  
 
-  
   return (
     <div className="imagetotext">
       <div className="field">
-        <div className="image-preview">
-          {imageSrc && <img src={imageSrc} alt="Selected" />}
+        <div className="left">
+          <div className="image-preview">
+            {imageSrc && <img src={imageSrc} alt="Selected" />}
+          </div>
+          <StoryList/>
+
         </div>
 
         <div className="result">
@@ -211,7 +229,12 @@ const ImageToText = () => {
                 onChange={handleEditedTextChange}
                 modules={{
                   toolbar: [
-                    [{ header: "1" }, { header: "2" }, { header: "3" }, { font: [] }],
+                    [
+                      { header: "1" },
+                      { header: "2" },
+                      { header: "3" },
+                      { font: [] },
+                    ],
                     [{ list: "ordered" }, { list: "bullet" }],
                     ["bold", "italic", "underline"],
                     ["link", "image"],
@@ -232,13 +255,17 @@ const ImageToText = () => {
                   "align",
                 ]}
               />
-              <button className="saveButton" onClick={handleSaveClick}>Save</button>
+              <button className="saveButton" onClick={handleSaveClick}>
+                Save
+              </button>
             </>
           ) : (
             currentResult && (
               <>
                 <div dangerouslySetInnerHTML={{ __html: currentResult }} />
-                <button className="editButton" onClick={handleEditClick}>Edit</button>
+                <button className="editButton" onClick={handleEditClick}>
+                  Edit
+                </button>
               </>
             )
           )}
