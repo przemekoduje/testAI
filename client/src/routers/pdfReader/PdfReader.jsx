@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./pdfReader.scss";
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { ClipLoader } from "react-spinners";
 
 const PdfReader = () => {
@@ -17,6 +17,8 @@ const PdfReader = () => {
   const [loading, setLoading] = useState(false); // Stan do zarządzania widocznością paska postępu
   const [progress, setProgress] = useState(0); // Stan do animacji paska postępu
   const [loadingSummary, setLoadingSummary] = useState(false); // Stan ładowania wiadomości
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isGeneratedResponse, setIsGeneratedResponse] = useState(false);
 
   // Ukryty input dla pliku PDF, wywoływany przez przycisk "Upload PDFs"
   const hiddenFileInput = React.useRef(null);
@@ -60,7 +62,6 @@ const PdfReader = () => {
           setUploadedFileNames(result.files.map((file) => file.fileName));
           setProgress(100); // Ustaw 100% po zakończeniu
           setIsFileUploaded(true); // Plik został załadowany
-          setPanelVisible(true); // Wyświetl dolny panel
           handleAnalyze(result.files.map((file) => file.fileUri)); // Analiza AI
         } else {
           console.error("Error uploading files:", xhr.statusText);
@@ -88,31 +89,44 @@ const PdfReader = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ fileUris, prompt: "Przedstaw podsumowanie dokumentu w trzech punktach. Użyj nagłówków <h1>, <h2> do kluczowych sekcji, a także użyj <blockquote> dla cytatów, <p> dla paragrafów. Na końcu podaj 3 sugerowane pytania w formacie listy." }),
+      body: JSON.stringify({
+        fileUris,
+        prompt:
+          "Przedstaw podsumowanie dokumentu w trzech punktach. Użyj nagłówków <h1>, <h2> do kluczowych sekcji, a także użyj <blockquote> dla cytatów, <p> dla paragrafów. Na końcu podaj 3 sugerowane pytania w formacie listy.",
+      }),
     });
 
     const result = await response.json();
     setSummary(result.summary); // Streszczenie dokumentu
-    setSuggestions(result.suggestions || []); // Sugerowane pytania AI
+    // setSuggestions(result.suggestions || []); // Sugerowane pytania AI
     setLoadingSummary(false); // Wyłączamy ładowanie po zakończeniu generowania
+
+    // Ustawienie popupu na widoczny
+    setIsPopupVisible(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupVisible(false); // Ukrycie popupu
+    setPanelVisible(true); // Otworzenie bottom-panel
   };
 
   const handleGenerate = async () => {
-    setLoadingSummary(true); // Ustawiamy ładowanie dla `summary`
+    setLoadingSummary(true); // Ustawiamy loader na czas ładowania
     const response = await fetch("http://localhost:8800/api/generate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ 
-        fileUris, 
-        prompt: `Odpowiedz na pytanie: ${prompt}. Proszę sformatować odpowiedź w HTML z użyciem <h1>, <h2>, <p>, <blockquote> oraz <ul><li> dla list.` 
+      body: JSON.stringify({
+        fileUris,
+        prompt: `Odpowiedz na pytanie: ${prompt}. Proszę sformatować odpowiedź w HTML z użyciem <h1>, <h2>, <p>, <blockquote> oraz <ul><li> dla list.`,
       }),
     });
 
     const result = await response.json();
-    setSummary(result.summary);
-    setLoadingSummary(false); // Wyłączamy ładowanie po zakończeniu generowania
+    setSummary(result.summary); // Zapisujemy odpowiedź z AI w stanie 'summary'
+    setIsGeneratedResponse(true); // Ustawiamy, że odpowiedź została wygenerowana
+    setLoadingSummary(false); // Wyłączamy loader po zakończeniu
   };
 
   const handleClick = () => {
@@ -125,7 +139,8 @@ const PdfReader = () => {
       {!isFileUploaded && (
         <div className="upload-button-container">
           <button className="upload-button" onClick={handleClick}>
-            Upload <br />PDF(s)
+            Upload <br />
+            PDF(s)
           </button>
         </div>
       )}
@@ -151,36 +166,36 @@ const PdfReader = () => {
         onChange={handleFileChange}
       />
 
-      {/* Sekcja sugerowanych pytań */}
-      {isFileUploaded && !prompt && suggestions.length > 0 && (
-        <div className="suggested-questions">
-          <h2>Suggested Questions:</h2>
-          <p>Here are some important points about the document:</p>
-          <ul>
-            {suggestions.map((suggestion, index) => (
-              <li key={index}>{suggestion}</li>
-            ))}
-          </ul>
+      {/* Warunkowe renderowanie okna popup */}
+      {isPopupVisible && (
+        <div className="popup-container">
+          <div className="popup-content">
+            <h2>Initial Document Analysis</h2>
+            <p dangerouslySetInnerHTML={{ __html: summary }} />
+            <button onClick={closePopup}>Close</button>
+          </div>
         </div>
       )}
 
       {/* Wygenerowany tekst */}
-      {loadingSummary ? ( // Pokazujemy loader, gdy trwa ładowanie `summary`
-        <div className="spinner-container">
-          <ClipLoader color="#4caf50" size={50} />
-        </div>
-      ) : (
-        summary && (
-          <div className="generated-text">
-            <h2>Summary:</h2>
-            {/* Stylizowany tekst generowany przez AI */}
-            <div
-              className="stylized-content"
-              dangerouslySetInnerHTML={{ __html: summary }}
-            />
+      {!isPopupVisible &&
+        isGeneratedResponse &&
+        (loadingSummary ? ( // Pokazujemy loader, gdy trwa ładowanie `summary`
+          <div className="spinner-container">
+            <ClipLoader color="#4caf50" size={50} />
           </div>
-        )
-      )}
+        ) : (
+          summary && ( // Renderujemy tylko gdy jest zamknięty popup i mamy odpowiedź z prompta
+            <div className="generated-text">
+              <h2>Generated Response:</h2>
+              {/* Stylizowany tekst generowany przez AI */}
+              <div
+                className="stylized-content"
+                dangerouslySetInnerHTML={{ __html: summary }}
+              />
+            </div>
+          )
+        ))}
 
       {/* Dolny panel z 4 elementami */}
       {panelVisible && (

@@ -1,0 +1,121 @@
+.pdfviewer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  // background-color: #f4f4f9;
+  padding: 20px;
+  border-radius: 15px;
+  // box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  margin: 20px auto;
+}
+
+.pdfviewer p {
+  font-size: 16px;
+  margin: 10px 0;
+  color: #333;
+}
+
+.pdfviewer button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 5px;
+}
+
+.pdfviewer button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.pdfviewer button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pdfviewer .pdf-page {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.pdfviewer .pdf-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Styl dla przełącznika */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.toggle-label {
+  margin-right: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #4CAF50;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+/* Styl dla stron w trybie all pages */
+.pdf-page .react-pdf__Page {
+  // margin: 20px 0; /* Odstęp między stronami */
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15); /* Cień dla każdej strony */
+  // padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+}

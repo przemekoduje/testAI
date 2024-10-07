@@ -8,7 +8,9 @@ import {
   Link,
 } from "react-router-dom";
 import PdfReader from "./routers/pdfReader/PdfReader";
+
 import './App.scss'
+import PdfReader_copy from "./routers/pdfReader_copy/PdfReader_copy";
 
 
 
@@ -30,6 +32,9 @@ function Home() {
           </li>
           <li>
             <Link to="/pdf">pdf reder</Link>
+          </li>
+          <li>
+            <Link to="/pdf_copy">pdf reder</Link>
           </li>
         </ul>
       </nav>
@@ -57,8 +62,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/pdf",
-    element: <PdfReader />,
+    element: <PdfReader/>,
   },
+  {
+    path: "/pdf_copy",
+    element: <PdfReader_copy/>,
+  },
+  
 ]);
 
 
