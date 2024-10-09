@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Document, Page } from "react-pdf";
-import pdf from "../../AIFuture.pdf";
+// import pdf from "../../AIFuture.pdf";
 import "./pdfViewer.scss";
+import { pdfjs } from "react-pdf";
 
-function PDFViewer({ fileUris }) {
+pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdfjs/pdf.worker.min.mjs`;
+
+function PDFViewer({ file }) {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
-  const [currentFileIndex, setCurrentFileIndex] = useState(0); // To przełącza pliki
+
   const [showAllPages, setShowAllPages] = useState(false);
 
   function onDocumentLoadSuccess({ numPages }) {
@@ -25,19 +28,19 @@ function PDFViewer({ fileUris }) {
     );
   }
 
-  function goToNextFile() {
-    setCurrentFileIndex((prevIndex) =>
-      prevIndex < fileUris.length - 1 ? prevIndex + 1 : prevIndex
-    );
-    setPageNumber(1); // Zresetuj numer strony dla nowego pliku
-  }
+  // function goToNextFile() {
+  //   setCurrentFileIndex((prevIndex) =>
+  //     prevIndex < fileUris.length - 1 ? prevIndex + 1 : prevIndex
+  //   );
+  //   setPageNumber(1); // Zresetuj numer strony dla nowego pliku
+  // }
 
-  function goToPreviousFile() {
-    setCurrentFileIndex((prevIndex) =>
-      prevIndex > 0 ? prevIndex - 1 : prevIndex
-    );
-    setPageNumber(1); // Zresetuj numer strony dla nowego pliku
-  }
+  // function goToPreviousFile() {
+  //   setCurrentFileIndex((prevIndex) =>
+  //     prevIndex > 0 ? prevIndex - 1 : prevIndex
+  //   );
+  //   setPageNumber(1); // Zresetuj numer strony dla nowego pliku
+  // }
 
   return (
     <div className="pdfviewer">
@@ -57,7 +60,8 @@ function PDFViewer({ fileUris }) {
       </div>
 
       <div className="pdf-page">
-        <Document file={fileUris[currentFileIndex]} onLoadSuccess={onDocumentLoadSuccess}>
+            
+        <Document file={file}  onLoadSuccess={onDocumentLoadSuccess}>
           {showAllPages
             ? Array.from(new Array(numPages), (el, index) => (
                 <Page
@@ -93,14 +97,14 @@ function PDFViewer({ fileUris }) {
       )}
 
       {/* Sterowanie plikami PDF */}
-      <div className="pdf-controls">
+      {/* <div className="pdf-controls">
         <button onClick={goToPreviousFile} disabled={currentFileIndex === 0}>
           Previous PDF
         </button>
         <button onClick={goToNextFile} disabled={currentFileIndex === fileUris.length - 1}>
           Next PDF
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

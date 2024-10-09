@@ -41,12 +41,11 @@
         font-size: 300px;
         margin: 0; /* Usunięcie marginesu */
         padding: 0; /* Usunięcie paddingu */
-        line-height: 0.75;
       }
       .t {
         position: absolute;
         width: 33%;
-        top: 0;
+        top: -60px;
         left: 0;
         display: flex;
         justify-content: center;
@@ -54,7 +53,7 @@
       .e {
         position: absolute;
         width: 33%;
-        top: 0;
+        top: -60px;
         left: 33%;
         display: flex;
         justify-content: center;
@@ -62,7 +61,7 @@
       .x {
         position: absolute;
         width: 33%;
-        top: 0;
+        top: -60px;
         left: 66%;
         display: flex;
         justify-content: center;
@@ -168,7 +167,6 @@
         width: 100%;
         margin: 0; /* Usunięcie marginesu */
         padding: 0; /* Usunięcie paddingu */
-        line-height: 0.75;
 
         .center_head {
           font-size: 300px;
@@ -176,7 +174,8 @@
         }
 
         .a {
-          top: 0;
+          position: absolute;
+          top: -60px;
           left: 0;
           width: 50%;
           display: flex;
@@ -184,7 +183,7 @@
         }
         .ai {
           position: absolute;
-          top: 0;
+          top: -60px;
           left: 50%;
           width: 50%;
           display: flex;
@@ -220,12 +219,11 @@
         overflow-x: hidden;
         margin: 0; /* Usunięcie marginesu */
         padding: 0; /* Usunięcie paddingu */
-        line-height: 0.75;
       }
       .id{
         position: absolute;
         width: 50%;
-        top: 0;
+        top: -60px;
         left: 0;
         display: flex;
         justify-content: center;
@@ -233,7 +231,7 @@
       .d {
         position: absolute;
         width: 50%;
-        top: 0;
+        top: -60px;
         left: 50%;
         display: flex;
         justify-content: center;
