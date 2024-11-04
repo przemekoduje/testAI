@@ -1,16 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Document, Page } from "react-pdf";
-// import pdf from "../../AIFuture.pdf";
 import "./pdfViewer.scss";
-import { pdfjs } from "react-pdf";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdfjs/pdf.worker.min.mjs`;
 
 function PDFViewer({ file }) {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
-
   const [showAllPages, setShowAllPages] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0); // Zmienna do przechowywania pozycji przewinięcia
 
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages);
@@ -28,40 +24,36 @@ function PDFViewer({ file }) {
     );
   }
 
-  // function goToNextFile() {
-  //   setCurrentFileIndex((prevIndex) =>
-  //     prevIndex < fileUris.length - 1 ? prevIndex + 1 : prevIndex
-  //   );
-  //   setPageNumber(1); // Zresetuj numer strony dla nowego pliku
-  // }
+  // Funkcja do przełączania trybu wyświetlania
+  function toggleShowAllPages() {
+    setScrollPosition(window.pageYOffset); // Zapisz pozycję przewinięcia przed zmianą trybu
+    setShowAllPages((prevShowAllPages) => !prevShowAllPages);
+  }
 
-  // function goToPreviousFile() {
-  //   setCurrentFileIndex((prevIndex) =>
-  //     prevIndex > 0 ? prevIndex - 1 : prevIndex
-  //   );
-  //   setPageNumber(1); // Zresetuj numer strony dla nowego pliku
-  // }
+  // Przywracanie pozycji przewinięcia po renderowaniu
+  useEffect(() => {
+    window.scrollTo(0, scrollPosition); // Przywróć pozycję przewinięcia
+  }, [showAllPages, scrollPosition]); // Reaguj na zmianę trybu wyświetlania i pozycji przewinięcia
 
   return (
     <div className="pdfviewer">
       {/* Przełącznik trybu wyświetlania */}
       <div className="toggle-container">
-        <label className="toggle-label">Display mode:</label>
+        <label className="toggle-label">Display:</label>
         <div className="toggle-switch">
           <input
             type="checkbox"
             id="toggle"
             checked={showAllPages}
-            onChange={() => setShowAllPages(!showAllPages)}
+            onChange={toggleShowAllPages} // Zmieniono na funkcję, która zapisuje pozycję przewinięcia
           />
           <label htmlFor="toggle" className="toggle-slider"></label>
         </div>
-        <span>{showAllPages ? "Show All Pages" : "Single Page"}</span>
+        <span>{showAllPages ? "All Pages" : "Single Page"}</span>
       </div>
 
       <div className="pdf-page">
-            
-        <Document file={file}  onLoadSuccess={onDocumentLoadSuccess}>
+        <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
           {showAllPages
             ? Array.from(new Array(numPages), (el, index) => (
                 <Page
@@ -95,19 +87,8 @@ function PDFViewer({ file }) {
           </button>
         </div>
       )}
-
-      {/* Sterowanie plikami PDF */}
-      {/* <div className="pdf-controls">
-        <button onClick={goToPreviousFile} disabled={currentFileIndex === 0}>
-          Previous PDF
-        </button>
-        <button onClick={goToNextFile} disabled={currentFileIndex === fileUris.length - 1}>
-          Next PDF
-        </button>
-      </div> */}
     </div>
   );
 }
-
 
 export default PDFViewer;

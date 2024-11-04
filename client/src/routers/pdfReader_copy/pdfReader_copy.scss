@@ -8,10 +8,9 @@
   .left,
   .center_container,
   .right {
-    
     overflow-y: auto; /* Pozwolenie na przewijanie */
-    -ms-overflow-style: none;  /* Ukrycie pasków w IE */
-    scrollbar-width: none;  /* Ukrycie pasków w Firefox */
+    -ms-overflow-style: none; /* Ukrycie pasków w IE */
+    scrollbar-width: none; /* Ukrycie pasków w Firefox */
   }
 
   .left::-webkit-scrollbar,
@@ -36,6 +35,7 @@
       position: relative;
       display: flex;
       width: 100%;
+      height: 300px;
 
       .left_head {
         font-size: 300px;
@@ -71,76 +71,192 @@
     .content-container {
       position: absolute;
       width: 100%;
-      top: 350px;
+      top: 300px;
+      padding: 0 ;
+      display: flex;
+      flex-direction: column;
 
-
-      .bottom-panel {
+      .contenet-top {
         position: relative;
-        width: 70%;
-        margin: 0 auto ;
-        border-top: 1px solid rgb(228, 228, 228);
-        border-bottom: 1px solid rgb(228, 228, 228);
-        border-radius: 50px;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        background-color: rgb(255, 255, 255);
-        z-index: 1;
-    
-        .mini-upload-button {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background-color: transparent;
-          border: 1px solid rgb(228, 228, 228);
-          font-size: 15px;
-    
-          &:hover {
-            background-color: rgb(228, 228, 228);
-            color: rgb(107, 107, 107);
+        flex-direction: column;
+        justify-content: flex-start;
+        height: calc(100vh - 300px);
+
+
+        .summary-analize {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          // border: 1px solid rgb(220, 220, 220);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+          padding: 60px;
+          border-radius: 10px;
+
+          &::after {
+            content: "summary";
+            position: absolute;
+            background-color: rgb(220, 220, 220);
+            color: white;
+            border-top-left-radius: 10px;
+            height: auto;
+            padding: 5px;
+            top: 0;
+            left: 0;
+          }
+
+          .analysis-summary {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            margin-bottom: 30px;
+  
+            ul {
+              li {
+                list-style-type: none;
+              }
+            }
+          }
+          .section-selector {
+            display: flex;
+  
+            align-self: center;
+            margin-bottom: 25px;
+  
+            .custom-radio-input {
+              opacity: 0;
+              position: absolute;
+            }
+  
+            /* Stylizacja kontenera radiobuttona */
+            .custom-radio-label {
+              display: flex;
+              align-items: center;
+              cursor: pointer;
+              font-size: 16px;
+            }
+  
+            /* Stylizowany "radio button" */
+            .custom-radio-button {
+              width: 15px; /* Rozmiar przycisku */
+              height: 15px;
+              border-radius: 50%; /* Zaokrąglone rogi */
+              border: 1px solid #000000; /* Obwódka przycisku */
+              background-color: white; /* Tło przycisku */
+              display: inline-block;
+              margin-right: 10px;
+              position: relative;
+            }
+  
+            /* Zmiana stylu po zaznaczeniu */
+            .custom-radio-input:checked + .custom-radio-button {
+              // background-color: #000000; /* Kolor wypełnienia przy zaznaczeniu */
+            }
+  
+            .custom-radio-button::after {
+              content: "";
+              position: absolute;
+              width: 10px;
+              height: 10px;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              border-radius: 50%;
+              background-color: rgb(0, 0, 0); /* Kolor wewnętrznego kółka */
+              opacity: 0;
+              transition: opacity 0.2s;
+            }
+  
+            /* Pojawienie się kółka po zaznaczeniu */
+            .custom-radio-input:checked + .custom-radio-button::after {
+              opacity: 1;
+            }
           }
         }
-    
-        textarea {
-          border: none;
-          flex: 1;
-          outline: none;
-        }
-    
-        .send {
-          margin-left: auto;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background-color: transparent;
-          border: 1px solid rgb(228, 228, 228);
-          font-size: 15px;
-        }
-    
-        .file-links {
+        .bottom-panel {
           position: absolute;
-    
-          top: -44px;
-          left: 50px;
+          bottom: 0;
+          width: 100%;
+          margin: 0 auto 0 auto;
+          border-top: 1px solid rgb(0, 0, 0);
+          border-bottom: 1px solid rgb(0, 0, 0);
           display: flex;
           align-items: center;
-          gap: 5px;
-    
-          button {
-            height: 44px;
-            padding: 0 10px;
+          justify-content: space-between;
+          gap: 10px;
+          background-color: rgb(255, 255, 255);
+          z-index: 1;
+
+          .mini-upload-button {
+            width: 50px;
+            height: 50px;
+            
             background-color: transparent;
-            border: 1px solid rgb(228, 228, 228);
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
+            border: none;
+            border-right: 1px solid rgb(0, 0, 0);
+            font-size: 15px;
+
+
+
+            &:hover {
+              background-color: rgb(0, 0, 0);
+              color: rgb(255, 255, 255);
+            }
+          }
+
+          textarea {
+            border: none;
+            flex: 1;
+            outline: none;
+            
+          }
+
+          .send {
+            margin-left: auto;
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-left: 1px solid rgb(0, 0, 0);
+            background-color: transparent;
+            font-size: 15px;
+            
+            &:hover {
+              background-color: rgb(0, 0, 0);
+              color: rgb(255, 255, 255);
+            }
+          }
+
+          .file-links {
+            position: absolute;
+            top: -44px;
+            left: 55px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 0;
+
+            button {
+              height: 44px;
+              padding: 0 10px;
+              background-color: transparent;
+              border: 1px solid rgb(0, 0, 0);
+              border-top-right-radius: 10px;
+              z-index: 0;
+
+              &:hover {
+                background-color: rgb(0, 0, 0);
+                color: rgb(255, 255, 255);
+              }
+            }
           }
         }
+        
+      }
+      .pdf-viewer-container{
+          display: flex;
       }
     }
   }
-
-
 
   .center_container {
     // background-color: rgb(217, 217, 217);
@@ -154,7 +270,7 @@
     transition: width 0.3s ease;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;;
+    overflow-y: auto;
 
     .center {
       position: relative;
@@ -193,11 +309,31 @@
     }
     .content-container {
       position: absolute;
-      top: 400px;
+      top: 300px;
+      padding: 0 20px 40px 20px;
+
+      h1,
+      h2,
+      h3 {
+        margin-top: 10px;
+      }
+      p {
+        margin-top: 5px;
+      }
+
+      ul {
+        list-style-type: none; // Usuwa znaczniki (bullet points, numerowanie)
+        padding-left: 5px;
+      }
+      li {
+        margin-left: 5px; // Dodatkowe wcięcie dla poszczególnych elementów listy
+        padding-left: 5px; // Możesz dodać dodatkowe wcięcie wewnętrzne, jeśli chcesz
+        margin-top: 5px;
+      }
     }
   }
 
-  .right{
+  .right {
     width: calc(100% * 2 / 6);
     height: 100%;
     z-index: 2;
@@ -209,18 +345,19 @@
     overflow-y: auto;
     
 
-    .head{
+    .head {
       position: relative;
       display: flex;
       width: 100%;
+      height: 300px;
 
-      .right_head{
+      .right_head {
         font-size: 300px;
         overflow-x: hidden;
         margin: 0; /* Usunięcie marginesu */
         padding: 0; /* Usunięcie paddingu */
       }
-      .id{
+      .id {
         position: absolute;
         width: 50%;
         top: -60px;
@@ -238,74 +375,13 @@
       }
     }
 
-    .content-container {
+    .content-container-right {
       position: absolute;
-      top: 300px
-    } 
+
+      width: 50%;
+      right: 0;
+      padding: 0 20px 40px 20px;
+      top: 300px;
+    }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// .reader-container {
-//   position: relative;
-//   display: flex;
-//   width: 100vw;
-//   height: 100vh;
-//   overflow: hidden;
-
-//   .head_container{
-//     position: absolute;
-//     top: 0;
-//     left: 0;
-//     z-index: 10;
-//     display: flex;
-
-//     .head{
-//       width: calc(100vw / 6);
-//       height: calc(100vw / 6);
-//       border: 1px solid red;
-
-//       img{
-//         width: 100%;
-//         height: 100%;
-//         object-fit: cover;
-//       }
-//     }
-//   }
-
-//   .left_analysis,
-//   .right_summery {
-//     transition: flex 0.5s ease-in-out;
-//     padding: 20px;
-//     overflow-y: auto;
-//   }
-
-//   .left_analysis {
-//     background-color: #f5f5f5;
-//   }
-
-//   .right_summery {
-//     background-color: #e0e0e0;
-//   }
-
-//   .l_head p,
-//   .r_head p {
-//     font-size: clamp(16px, 2vw, 24px);
-//     text-align: center;
-//     margin: 0;
-//   }
-// }

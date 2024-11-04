@@ -1,0 +1,68 @@
+.note-editor {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 15px;
+    background-color: transparent;
+  }
+
+  .quill.note-content-editor{
+    padding: 0;
+    border: none;
+  }
+
+  .ql-editor{
+    height: 350px;
+    
+    
+  }
+  
+  .note-title-input,
+  .note-content-editor,
+  .email-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .add-pdf {
+    display: flex;
+    align-items: center;
+
+    label{
+        display: flex;
+        gap: 5px;
+    }
+    
+  }
+  .edit-buttons{
+    display: flex;
+    gap: 10px;
+  }
+  .save-note-button,
+  .send-email-button {
+    padding: 10px 20px; 
+    background-color: #000000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    max-width: 150px;
+  }
+  
+  .save-note-button:hover,
+  .send-email-button:hover {
+    background-color: #45a049;
+  }
+  .close-editor-button{
+    padding: 10px 20px;
+    background-color: #000000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    max-width: 150px;
+  }
